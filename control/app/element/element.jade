@@ -5,4 +5,4 @@ div#element( layout="column" layout-align="center center" flex )
             label {{ key }}
             input( type="text" ng-model='element[ key ]' )
          span( flex )
-         md-button.md-primary.md-raised#save( ng-click="save()" ) Save
+         md-button.md-primary.md-raised#save( ng-click="save()" ng-if="$index == 0" ) Save
