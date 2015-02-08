@@ -5,14 +5,22 @@ var gulp            = require( 'gulp' ),
     path            = require( 'path'),
     concat          = require( 'gulp-concat'),
     inject          = require( './control/inject'),
+    injectClient    = require( './client/inject'),
     jade            = require( 'gulp-jade'),
     cheerio         = require( 'cheerio'),
     fs              = require( 'fs'),
     glob            = require( 'glob'),
     less            = require( 'gulp-less'),
-    _               = require( 'lodash' );
+    _               = require( 'lodash'),
+    uglify          = require( 'gulp-uglify'),
+    rename          = require( 'gulp-rename'),
+    sourcemaps      = require( 'gulp-sourcemaps' );
 
 
+gulp.task('client:clean', function(){
+    return gulp.src( path.join( 'dist', 'client' ) )
+        .pipe( rimRaf( { force: true } ));
+});
 
 gulp.task('control:clean', function(){
     return gulp.src( path.join( 'dist', 'control' ) )
@@ -24,7 +32,11 @@ gulp.task('service:clean', function(){
         .pipe( rimRaf( { force: true } ));
 });
 
-gulp.task('clean', [ 'control:clean', 'service:clean' ] );
+gulp.task('clean', [ 'client:clien', 'control:clean', 'service:clean' ] );
+
+gulp.task( 'client:make', [ 'client:clean' ], function(done){
+    mkDir( 'dist/client', done );
+});
 
 gulp.task( 'control:make', [ 'control:clean' ], function(done){
     mkDir( 'dist/control', done );
@@ -34,7 +46,13 @@ gulp.task( 'service:make', [ 'service:clean' ], function(done){
     mkDir( 'dist/service', done );
 });
 
-gulp.task( 'make', [ 'control:make', 'service:make' ] );
+gulp.task( 'make', [ 'client:make', 'control:make', 'service:make' ] );
+
+gulp.task('client:coffee', [ 'client:make' ], function(){
+    return gulp.src( path.join( 'client', '**', '*.coffee' ) )
+        .pipe( coffee( { bare: false } ) )
+        .pipe( gulp.dest( path.join( 'dist', 'client', 'src' ) ) );
+});
 
 gulp.task('control:coffee', [ 'control:make' ], function(){
     return gulp.src( path.join( 'control', '**', '*.coffee' ) )
@@ -48,7 +66,7 @@ gulp.task('service:coffee', [ 'service:make' ], function(){
         .pipe( gulp.dest( path.join( 'dist', 'service' ) ) );
 });
 
-gulp.task('coffee', [ 'control:coffee', 'service:coffee' ] );
+gulp.task('coffee', [ 'client:coffee', 'control:coffee', 'service:coffee' ] );
 
 gulp.task('jade', [ 'control:make' ], function(){
     return gulp.src( path.join( 'control', '**', '*.jade' ) )
@@ -60,6 +78,11 @@ gulp.task('less', [ 'control:make' ], function(){
     return gulp.src( path.join( 'control', 'less', 'main.less' ) )
         .pipe( less( ) )
         .pipe( gulp.dest( path.join( 'dist', 'control', 'styles' ) ) )
+});
+
+gulp.task('client:inject', [ 'client:make' ], function() {
+    return gulp.src( injectClient.scripts )
+        .pipe( gulp.dest( path.join( 'dist', 'client', 'vendor' ) ) )
 });
 
 gulp.task('inject:clone:scripts', [ 'control:clean' ], function(){
@@ -210,12 +233,57 @@ gulp.task('package:clone:service', [ 'service:make' ], function(){
         .pipe( gulp.dest( path.join( 'dist' ) ))
 });
 
+gulp.task('client:concat:src', [ 'client:coffee' ], function(){
+    return gulp.src( path.join( 'dist', 'client', 'src', '**', '*.js' ) )
+        .pipe(concat( 'element-js-src.js' ))
+        .pipe(gulp.dest( path.join( 'dist', 'client' ) ) )
+});
+
+gulp.task('client:concat:vendor', [ 'client:inject' ], function(){
+    return gulp.src( path.join( 'dist', 'client', 'vendor', '**', '*.js' ) )
+        .pipe(concat( 'element-js-vendor.js' ))
+        .pipe(gulp.dest( path.join( 'dist', 'client' ) ) )
+});
+
+gulp.task('client:concat', [ 'client:concat:src', 'client:concat:vendor' ], function(){
+    return gulp.src( [
+        path.join( 'dist', 'client', 'element-js-vendor.js' ),
+        path.join( 'dist', 'client', 'element-js-src.js' )
+    ] )
+        .pipe(concat( 'element-js.js' ))
+        .pipe(gulp.dest( path.join( 'dist', 'client' ) ) )
+});
+
+
+gulp.task('client:compile:src', [ 'client:concat:src' ], function(){
+    return gulp.src( path.join( 'dist', 'client', 'element-js-src.js' ) )
+        .pipe(uglify( ))
+        .pipe(rename( 'element-js-src.min.js' ))
+        .pipe(gulp.dest( path.join( 'dist', 'client' ) ) )
+});
+
+gulp.task('client:compile:vendor', [ 'client:concat:vendor' ], function(){
+    return gulp.src( path.join( 'dist', 'client', 'element-js-vendor.js' ) )
+        .pipe(uglify( ))
+        .pipe(rename( 'element-js-vendor.min.js' ) )
+        .pipe(gulp.dest( path.join( 'dist', 'client' ) ) )
+});
+
+gulp.task('client:compile', [ 'client:compile:src', 'client:compile:vendor', 'client:concat' ], function(){
+    return gulp.src( path.join( 'dist', 'client', 'element-js.js' ) )
+        .pipe(uglify( ))
+        .pipe(rename( 'element-js.min.js' ) )
+        .pipe(gulp.dest( path.join( 'dist', 'client' ) ) )
+});
+
+gulp.task('client:build', [ 'client:clean', 'client:make', 'client:coffee', 'client:inject', 'client:compile' ] );
 gulp.task('control:build', [ 'control:clean', 'control:make', 'control:coffee', 'jade', 'inject', 'assets:clone' ] );
 gulp.task('service:build', [ 'service:clean', 'service:make', 'service:coffee', 'json:clone', 'package:clone:service' ] );
 
-gulp.task('build', [ 'control:build', 'service:build' ] );
+gulp.task('build', [ 'client:build', 'control:build', 'service:build' ] );
 
 
+gulp.task( 'client',  [ 'client:build' ] );
 gulp.task( 'control', [ 'control:build' ] );
 gulp.task( 'service', [ 'service:build' ] );
 

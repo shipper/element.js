@@ -5,22 +5,23 @@
 
   exports.register = function(server) {
     var directory, serve;
-    directory = './dist/control';
+    directory = './dist/client';
     serve = restify.serveStatic({
       directory: directory
     });
-    server.get(/^(?!\/?[api|client])\/?$/, function(req, res, next) {
-      var newReq;
+    return server.get(/\/?client\/(.*\.js)/, function(req, res, next) {
+      var newReq, path, regex;
+      regex = /\/?client\/(.*\.js)/;
+      path = regex.exec(req.path())[1];
       newReq = {
         path: function() {
-          return 'index.html';
+          return path;
         },
         method: 'GET',
         acceptsEncoding: req.acceptsEncoding
       };
       return serve(newReq, res, next);
     });
-    return server.get(/^(?!\/?[api|client])\/?.*$/, serve);
   };
 
 }).call(this);

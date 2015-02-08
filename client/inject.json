@@ -1,0 +1,6 @@
+{
+  "scripts": [
+    "./bower_components/q/q.js",
+    "./bower_components/lodash/lodash.js"
+  ]
+}
