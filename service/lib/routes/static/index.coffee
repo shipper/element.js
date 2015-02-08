@@ -9,7 +9,7 @@ exports.register = ( server ) ->
   )
 
   server.get(
-    /^(?!\/?[api|client])\/?$/,
+    /^(?!\/?api)\/?$/,
     ( req, res, next ) ->
 
       # if it walks like a duck...
@@ -24,7 +24,7 @@ exports.register = ( server ) ->
   )
 
   server.get(
-    /^(?!\/?[api|client])\/?.*$/,
+    /^(?!\/?api)\/?.*$/,
     serve
   )
 

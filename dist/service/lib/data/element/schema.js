@@ -1,5 +1,5 @@
 (function() {
-  var ObjectId, Schema, mongoose, uuid;
+  var ObjectId, Schema, exports, mongoose, uuid;
 
   mongoose = require('mongoose');
 
@@ -9,9 +9,10 @@
 
   uuid = require('node-uuid');
 
-  module.exports = new Schema({
+  module.exports = exports = new Schema({
     type_id: ObjectId,
-    type_revision_map: ObjectId,
+    type_revision_map_key: String,
+    type_revision_map_id: ObjectId,
     type_revision: Number,
     data: {
       content_type: {

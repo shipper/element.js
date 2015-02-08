@@ -48,7 +48,7 @@ class RevisionResources
         return deferred.reject( err )
       return deferred.resolve( document )
 
-    @getRevisions( key, org, key_type = 'key' )
+    @getRevisions( key, org, key_type )
     .then( ( revisions ) =>
 
       revision_obj = null
@@ -106,13 +106,13 @@ class RevisionResources
         return new ExternalRevision( document, revision )
       )
 
-      unless reference
+      if reference
         return deferred.resolve( latest )
 
       revisions = [ ]
 
       promises = _.map( latest, ( revision ) =>
-        return @findRevision( revision.document.id, revision.revision, org, 'id' )
+        return @findRevision( revision.document.id, revision.revision.revision, org, 'id' )
         .then( ( doc ) ->
           revisions.push( doc )
         )
@@ -132,7 +132,7 @@ class RevisionResources
       {
         organization_id: org
       },
-      find_callback()
+      find_callback
     )
 
     return deferred.promise
@@ -199,7 +199,16 @@ class RevisionResources
   save: ( instance ) ->
     deferred = Q.defer( )
 
-    @getRevisions( instance[ 'revision_map_id' ], instance.organization_id, 'id' )
+    key = instance[ 'revision_map_id' ]
+    type = 'id'
+
+    unless key?
+      key = instance[ 'revision_map_key' ]
+      type = 'key'
+
+    # else it will create a new one
+
+    @getRevisions( key , instance.organization_id, type )
     .then( ( revisions ) =>
 
       biggest_revision = -1

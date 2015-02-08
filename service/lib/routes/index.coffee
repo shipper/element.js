@@ -11,4 +11,4 @@ exports.register = ( server ) ->
   type    .register( server )
   $static .register( server )
   metadata.register( server )
-  client  .register( server )
+  #client  .register( server )

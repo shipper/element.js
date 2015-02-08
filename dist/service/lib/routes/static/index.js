@@ -9,7 +9,7 @@
     serve = restify.serveStatic({
       directory: directory
     });
-    server.get(/^(?!\/?[api|client])\/?$/, function(req, res, next) {
+    server.get(/^(?!\/?api)\/?$/, function(req, res, next) {
       var newReq;
       newReq = {
         path: function() {
@@ -20,7 +20,7 @@
       };
       return serve(newReq, res, next);
     });
-    return server.get(/^(?!\/?[api|client])\/?.*$/, serve);
+    return server.get(/^(?!\/?api)\/?.*$/, serve);
   };
 
 }).call(this);

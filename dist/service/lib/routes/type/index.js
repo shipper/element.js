@@ -1,8 +1,10 @@
 (function() {
-  var Q, Type, authentication, element, uuid, _,
+  var Q, RevisionResource, Schema, Type, TypeRevisionResource, authentication, element, uuid, _,
     __hasProp = {}.hasOwnProperty;
 
   Type = require('../../data/type');
+
+  Schema = require('../../data/type/schema');
 
   authentication = require('../../authentication');
 
@@ -13,6 +15,10 @@
   _ = require('lodash');
 
   element = require('./element');
+
+  RevisionResource = require('../../revision-resource');
+
+  TypeRevisionResource = new RevisionResource('Type', Schema);
 
   exports.register = function(server) {
     element.register(server);
@@ -40,109 +46,57 @@
     return res.send(200, base);
   };
 
-  exports.post = function(req, res) {
-    var type;
-    type = new Type(req.body);
-    type.organization_id = req.user.organization_id;
-    type.key = uuid.v4();
-    return type.save(function(err, type) {
-      if (err) {
-        return res.send(500, err);
-      }
-      res.header("Location", "/api/type/" + type.key);
-      return res.send(201);
-    });
+  exports.post = function(req, res, next) {
+    return exports.put(req, res, next);
   };
 
   exports.put = function(req, res) {
-    var deferred, isNew;
-    deferred = Q.defer();
-    isNew = false;
-    Type.find({
-      key: req.params.key,
-      organization_id: req.user.organization_id
-    }, function(err, types) {
-      var type;
-      if (!(err || types.length === 0)) {
-        return deferred.resolve(types[0]);
+    var instance;
+    instance = TypeRevisionResource.create();
+    instance.organization_id = req.user.organization_id;
+    instance.revision_map_key = req.params.key;
+    instance.name = req.body.name;
+    instance.description = req.body.description;
+    instance.definition = req.body.definition;
+    return TypeRevisionResource.save(instance).then(function(instance) {
+      var status, _ref;
+      if (((_ref = req.params) != null ? _ref.key : void 0) == null) {
+        res.header("Location", "/api/type/" + instance.revision_map_key);
       }
-      isNew = true;
-      type = new Type({
-        key: req.params.key,
-        organization_id: req.user.organization_id
-      });
-      deferred.resolve(type);
-    });
-    return deferred.promise.then(function(type) {
-      type.name = req.body.name;
-      type.description = req.body.description;
-      type.definition = req.body.definition;
-      deferred = Q.defer();
-      type.save(function(err) {
-        if (err) {
-          return deferred.resolve(err);
-        }
-        return deferred.resolve(type);
-      });
-      return deferred.promise;
-    }).then(function() {
-      return res.send(isNew ? 203 : 204);
+      status = instance.$revision === 0 ? 201 : 204;
+      return res.send(status);
     }).fail(function(error) {
       return res.send(500, error);
     });
   };
 
   exports.get = function(req, res) {
-    return Type.find({
-      key: req.params.key,
-      organization_id: req.user.organization_id
-    }, function(err, type) {
-      if (err || !(type != null ? type.length : void 0)) {
-        return res.send(404);
-      }
-      return res.send(200, {
-        name: type[0].name,
-        description: type[0].description,
-        definition: type[0].definition
-      });
+    return TypeRevisionResource.findRevision(req.params.key, req.params.revision, req.user.organization_id).then(function(instance) {
+      return res.send(200, instance);
+    }).fail(function(error) {
+      return res.send(500, error);
     });
   };
 
   exports.getDefinition = function(req, res) {
-    return Type.find({
-      key: req.params.key,
-      organization_id: req.user.organization_id
-    }, function(err, type) {
-      if (err || !(type != null ? type.length : void 0)) {
-        return res.send(404);
-      }
-      return type[0].getDefinition().then(function(definition) {
+    return TypeRevisionResource.findRevision(req.params.key, req.params.revision, req.user.organization_id).then(function(instance) {
+      return instance.getDefinition().then(function(definition) {
         return res.send(200, definition);
       }).fail(function(error) {
         return res.send(500, error);
       });
+    }).fail(function(error) {
+      return res.send(500, error);
     });
   };
 
   exports.del = function(req, res) {};
 
   exports.find = function(req, res) {
-    var query;
-    query = Type.find({
-      organization_id: req.user.organization_id
-    });
-    return query.exec(function(err, types) {
-      if (err) {
-        return res.send(500, err);
-      }
-      return res.send(200, _.map(types, function(type) {
-        return {
-          key: type.key,
-          name: type.name,
-          description: type.description,
-          definition: type.definition
-        };
-      }));
+    return TypeRevisionResource.getAll(req.user.organization_id, false).then(function(documents) {
+      return res.send(200, documents);
+    }).fail(function(error) {
+      return res.send(500, error);
     });
   };
 

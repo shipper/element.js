@@ -7,14 +7,15 @@ Q                         = require( 'q' )
 ElementRevisionResource = new RevisionResource( 'Element', Schema )
 
 exports.register = ( server ) ->
-  #server.get(  '/api/element',                                    authentication, get.getAll        )
+  server.get(  '/api/element',                                    authentication, exports.getAll        )
 
   #server.put(  '/api/element/:key/publish',                       authentication, put.publish       )
   #server.put(  '/api/element/:key/revisions/:revision/publish',   authentication, put.publish       )
   #server.del(  '/api/element/:key',                               authentication, del.del           )
   server.get(  '/api/element/:key',                               authentication, exports.get           )
-  #server.get(  '/api/element/:key/metadata',                      authentication, get.getMetadata   )
+  server.get(  '/api/element/:key/metadata',                      authentication, exports.getMetadata   )
   server.get(  '/api/element/:key/revisions/:revision',           authentication, exports.get           )
+  server.get(  '/api/element/:key/revisions/:revision/metadata',  authentication, exports.getMetadata   )
   server.get(  '/api/element/:key/revisions',                     authentication, exports.getRevisions  )
 
   killChain = ( method, path, handler ) ->
@@ -30,6 +31,21 @@ exports.register = ( server ) ->
   killChain( 'post', '/api/element',      exports.post  )
   killChain( 'put',  '/api/element/:key', exports.put   )
 
+exports.getAll = ( req, res ) ->
+
+  ElementRevisionResource
+  .getAll(
+    req.user.organization_id,
+    true
+  )
+  .then( ( documents ) ->
+    res.send( 200, documents )
+  )
+  .fail( ( error ) ->
+    return res.send( 500, error )
+  )
+
+
 exports.getRevisions = ( req, res ) ->
   ElementRevisionResource
   .getRevisions(
@@ -43,6 +59,31 @@ exports.getRevisions = ( req, res ) ->
     return res.send( 500, error )
   )
 
+exports.getMetadata = ( req, res ) ->
+
+  ElementRevisionResource
+  .findRevision(
+    req.params.key,
+    req.params.revision,
+    req.user.organization_id
+  )
+  .then( ( element ) ->
+    res.send(
+      200,
+      {
+        revision: element.revision,
+        revision_key: element.revision_key,
+        key: req.params.key
+        data_length: element.data.data.length,
+        content_type: element.data.content_type,
+        type_key: element.type_revision_map_key
+        type_revision: element.type_revision or 0
+      }
+    )
+  )
+  .fail( ( error ) ->
+    return res.send( 500, error )
+  )
 
 exports.get = ( req, res ) ->
 
@@ -114,8 +155,6 @@ exports.post = ( req, res, next ) ->
 exports.requestToData = ( req ) ->
   deferred = Q.defer( )
   stream = new WritableStreamBuffer( )
-
-  console.log( 'req' )
 
   req.pipe( stream )
 

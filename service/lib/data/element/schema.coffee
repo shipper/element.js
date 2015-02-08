@@ -3,10 +3,11 @@ Schema      = mongoose.Schema
 ObjectId    = mongoose.Schema.Types.ObjectId
 uuid        = require( 'node-uuid' )
 
-module.exports = new Schema(
+module.exports = exports = new Schema(
 
   type_id: ObjectId
-  type_revision_map: ObjectId
+  type_revision_map_key: String
+  type_revision_map_id: ObjectId
   type_revision: Number
 
   data:

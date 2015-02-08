@@ -1,9 +1,13 @@
-Type            = require( '../../data/type' )
-authentication  = require( '../../authentication' )
-uuid            = require( 'node-uuid' )
-Q               = require( 'q' )
-_               = require( 'lodash' )
-element         = require( './element' )
+Type             = require( '../../data/type' )
+Schema           = require( '../../data/type/schema' )
+authentication   = require( '../../authentication' )
+uuid             = require( 'node-uuid' )
+Q                = require( 'q' )
+_                = require( 'lodash' )
+element          = require( './element' )
+RevisionResource = require( '../../revision-resource' )
+
+TypeRevisionResource = new RevisionResource( 'Type', Schema )
 
 exports.register = ( server ) ->
 
@@ -28,123 +32,85 @@ exports.base = ( req, res ) ->
     base[ key ] = val
   res.send( 200, base )
 
-exports.post = ( req, res ) ->
-  type = new Type(
-    req.body
-  )
-
-  type.organization_id = req.user.organization_id
-  type.key = uuid.v4( )
-
-  type.save( ( err, type ) ->
-    if err
-      return res.send( 500, err )
-
-    res.header( "Location", "/api/type/#{ type.key }" )
-    res.send( 201 )
-  )
+exports.post = ( req, res, next ) ->
+  exports.put( req, res, next )
 
 exports.put = ( req, res ) ->
-  deferred = Q.defer( )
 
-  isNew = false
+  instance = TypeRevisionResource.create( )
 
-  Type.find(
-    {
-      key: req.params.key,
-      organization_id: req.user.organization_id
-    },
-    ( err, types ) ->
-      unless err or types.length is 0
-        return deferred.resolve( types[ 0 ] )
-      isNew = true
-      type = new Type(
-        key: req.params.key,
-        organization_id: req.user.organization_id
-      )
+  instance.organization_id = req.user.organization_id
+  instance.revision_map_key = req.params.key
 
-      deferred.resolve( type )
+  instance.name = req.body.name
+  instance.description = req.body.description
+  instance.definition = req.body.definition
 
-      return
-  )
+  TypeRevisionResource
+  .save( instance )
+  .then( ( instance ) ->
 
-  deferred
-  .promise
-  .then( ( type ) ->
-    type.name = req.body.name
-    type.description = req.body.description
-    type.definition = req.body.definition
+    unless req.params?.key?
+      res.header( "Location", "/api/type/#{ instance.revision_map_key }" )
 
-    deferred = Q.defer( )
-    type.save( ( err ) ->
-      if err
-        return deferred.resolve( err )
-      deferred.resolve( type )
-    )
-    return deferred.promise
-  )
-  .then( ->
-    res.send( if isNew then 203 else 204 )
+    status = if instance.$revision is 0 then 201 else 204
+    res.send( status )
   )
   .fail( ( error ) ->
     res.send( 500, error )
   )
 
 exports.get = ( req, res ) ->
-  Type.find(
-    {
-      key: req.params.key,
-      organization_id: req.user.organization_id
-    },
-    ( err, type ) ->
-      if err or not type?.length
-        return res.send( 404 )
-      return res.send( 200, {
-        name: type[ 0 ].name
-        description: type[ 0 ].description
-        definition: type[ 0 ].definition
-      })
+
+  TypeRevisionResource
+  .findRevision(
+    req.params.key,
+    req.params.revision,
+    req.user.organization_id
+  )
+  .then( ( instance ) ->
+    res.send( 200, instance )
+  )
+  .fail( ( error ) ->
+    res.send( 500, error )
   )
 
+
 exports.getDefinition = ( req, res ) ->
-  Type.find(
-    {
-      key: req.params.key,
-      organization_id: req.user.organization_id
-    },
-    ( err, type ) ->
-      if err or not type?.length
-        return res.send( 404 )
-      type[ 0 ]
-      .getDefinition( )
-      .then( ( definition ) ->
-        res.send( 200, definition )
-      )
-      .fail( ( error ) ->
-        res.send( 500, error )
-      )
+  TypeRevisionResource
+  .findRevision(
+    req.params.key,
+    req.params.revision,
+    req.user.organization_id
   )
+  .then( ( instance ) ->
+    instance
+    .getDefinition( )
+    .then( ( definition ) ->
+      res.send( 200, definition )
+    )
+    .fail( ( error ) ->
+      res.send( 500, error )
+    )
+  )
+  .fail( ( error ) ->
+    res.send( 500, error )
+  )
+
 
 exports.del = ( req, res ) ->
 
 exports.find = ( req, res ) ->
 
-  query = Type.find(
-    {
-      organization_id: req.user.organization_id
-    }
+  TypeRevisionResource
+  .getAll(
+    req.user.organization_id,
+    false
   )
-
-  query.exec( ( err, types ) ->
-    if err
-      return res.send( 500, err )
-    res.send( 200, _.map( types, ( type ) ->
-      return {
-        key: type.key
-        name: type.name
-        description: type.description
-        definition: type.definition
-      }
-    ))
+  .then( ( documents ) ->
+    res.send( 200, documents )
+  )
+  .fail( ( error ) ->
+    return res.send( 500, error )
   )
 

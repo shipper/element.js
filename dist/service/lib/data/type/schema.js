@@ -142,4 +142,15 @@
     });
   };
 
+  exports.methods.toJSON = function() {
+    return {
+      key: this.revision_map_key,
+      name: this.name,
+      description: this.description,
+      definition: this.definition
+    };
+  };
+
+  exports.methods.toBSON = exports.methods.toJSON;
+
 }).call(this);

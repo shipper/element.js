@@ -74,7 +74,7 @@
         }
         return deferred.resolve(document);
       };
-      this.getRevisions(key, org, key_type = 'key').then((function(_this) {
+      this.getRevisions(key, org, key_type).then((function(_this) {
         return function(revisions) {
           var revision_key, revision_obj, revision_possible, _i, _len;
           revision_obj = null;
@@ -137,12 +137,12 @@
             }
             return new ExternalRevision(document, revision);
           });
-          if (!reference) {
+          if (reference) {
             return deferred.resolve(latest);
           }
           revisions = [];
           promises = _.map(latest, function(revision) {
-            return _this.findRevision(revision.document.id, revision.revision, org, 'id').then(function(doc) {
+            return _this.findRevision(revision.document.id, revision.revision.revision, org, 'id').then(function(doc) {
               return revisions.push(doc);
             });
           });
@@ -153,7 +153,7 @@
       })(this);
       this.revisonModel.find({
         organization_id: org
-      }, find_callback());
+      }, find_callback);
       return deferred.promise;
     };
 
@@ -215,11 +215,17 @@
     };
 
     RevisionResources.prototype.save = function(instance) {
-      var deferred;
+      var deferred, key, type;
       deferred = Q.defer();
-      this.getRevisions(instance['revision_map_id'], instance.organization_id, 'id').then((function(_this) {
+      key = instance['revision_map_id'];
+      type = 'id';
+      if (key == null) {
+        key = instance['revision_map_key'];
+        type = 'key';
+      }
+      this.getRevisions(key, instance.organization_id, type).then((function(_this) {
         return function(revisions) {
-          var biggest_revision, key, map_key, model, revision, save_model_callback, save_revisions_callback, _i, _len;
+          var biggest_revision, map_key, model, revision, save_model_callback, save_revisions_callback, _i, _len;
           biggest_revision = -1;
           for (_i = 0, _len = revisions.length; _i < _len; _i++) {
             revision = revisions[_i];

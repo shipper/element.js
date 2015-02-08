@@ -146,5 +146,12 @@ exports.methods.validateData = ( data ) ->
     return form.data
   )
 
+exports.methods.toJSON = ->
+  return {
+    key: @revision_map_key
+    name: @name
+    description: @description
+    definition: @definition
+  }
 
-
+exports.methods.toBSON = exports.methods.toJSON

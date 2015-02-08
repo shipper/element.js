@@ -18,8 +18,7 @@
     agent.register(server);
     type.register(server);
     $static.register(server);
-    metadata.register(server);
-    return client.register(server);
+    return metadata.register(server);
   };
 
 }).call(this);
