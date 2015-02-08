@@ -205,8 +205,13 @@ gulp.task('json:clone', [ 'service:make' ], function(){
         .pipe( gulp.dest( path.join( 'dist', 'service' ) ))
 });
 
-gulp.task('control:build', [ 'control:clean', 'control:make', 'control:coffee', 'jade', 'inject', 'assets:clone'] );
-gulp.task('service:build', [ 'service:clean', 'service:make', 'service:coffee', 'json:clone' ] );
+gulp.task('package:clone:service', [ 'service:make' ], function(){
+    return gulp.src( 'package.json' )
+        .pipe( gulp.dest( path.join( 'dist' ) ))
+});
+
+gulp.task('control:build', [ 'control:clean', 'control:make', 'control:coffee', 'jade', 'inject', 'assets:clone' ] );
+gulp.task('service:build', [ 'service:clean', 'service:make', 'service:coffee', 'json:clone', 'package:clone:service' ] );
 
 gulp.task('build', [ 'control:build', 'service:build' ] );
 

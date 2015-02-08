@@ -1,5 +1,5 @@
 (function() {
-  var $static, agent, element, type;
+  var $static, agent, element, metadata, type;
 
   element = require('./element');
 
@@ -9,11 +9,14 @@
 
   $static = require('./static');
 
+  metadata = require('./metadata');
+
   exports.register = function(server) {
     element.register(server);
     agent.register(server);
     type.register(server);
-    return $static.register(server);
+    $static.register(server);
+    return metadata.register(server);
   };
 
 }).call(this);
