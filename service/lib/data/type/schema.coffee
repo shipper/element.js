@@ -16,22 +16,17 @@ module.exports = exports = new Schema(
   name: String
   description: String
   definition: { }
-  create_date:
-    type: Date
+
+  organization_id:
+    type: ObjectId
     required: true
-    default: ->
-      return new Date( )
-  key:
-    type: String
+  revision_map_id:
+    type: ObjectId
     required: true
-    default: ->
-      return uuid.v4( )
-  uuid:
-    type: String
-    required: true
-    default: ->
-      return uuid.v4( )
-  organization_id: ObjectId
+  revision_map_key: String
+  revision: Number
+  revision_key: String
+
 )
 
 # string+, string (empty string allowed), alpha, alphanum, email, object, array, date, number, int, boolean, url, zipcode

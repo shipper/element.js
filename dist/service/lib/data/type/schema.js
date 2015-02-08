@@ -26,28 +26,17 @@
     name: String,
     description: String,
     definition: {},
-    create_date: {
-      type: Date,
-      required: true,
-      "default": function() {
-        return new Date();
-      }
+    organization_id: {
+      type: ObjectId,
+      required: true
     },
-    key: {
-      type: String,
-      required: true,
-      "default": function() {
-        return uuid.v4();
-      }
+    revision_map_id: {
+      type: ObjectId,
+      required: true
     },
-    uuid: {
-      type: String,
-      required: true,
-      "default": function() {
-        return uuid.v4();
-      }
-    },
-    organization_id: ObjectId
+    revision_map_key: String,
+    revision: Number,
+    revision_key: String
   });
 
   exports.statics.Base = Base;

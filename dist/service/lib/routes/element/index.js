@@ -1,43 +1,102 @@
 (function() {
-  var Element, ElementResource, Q, Resource, authentication, del, get, lodash, post, put;
+  var ElementRevisionResource, Q, RevisionResource, Schema, WritableStreamBuffer, authentication;
 
   authentication = require('../../authentication');
 
-  Element = require('../../data/element');
+  RevisionResource = require('../../revision-resource');
 
-  lodash = require('lodash');
+  Schema = require('../../data/element/schema');
 
-  Resource = require('../../data/resource');
+  WritableStreamBuffer = require('stream-buffers').WritableStreamBuffer;
 
   Q = require('q');
 
-  get = require('./get');
-
-  del = require('./del');
-
-  post = require('./post');
-
-  put = require('./put');
-
-  ElementResource = new Resource(Element, 'data', 'key');
+  ElementRevisionResource = new RevisionResource('Element', Schema);
 
   exports.register = function(server) {
     var killChain;
-    server.get('/api/element', authentication, get.getAll);
-    server.put('/api/element/:key/publish', authentication, put.publish);
-    server.put('/api/element/:key/revisions/:revision/publish', authentication, put.publish);
-    server.del('/api/element/:key', authentication, del.del);
-    server.get('/api/element/:key', authentication, get.get);
-    server.get('/api/element/:key/metadata', authentication, get.getMetadata);
-    server.get('/api/element/:key/revisions/:revision', authentication, get.get);
-    server.get('/api/element/:key/revisions', authentication, get.getRevisions);
+    server.get('/api/element/:key', authentication, exports.get);
+    server.get('/api/element/:key/revisions/:revision', authentication, exports.get);
+    server.get('/api/element/:key/revisions', authentication, exports.getRevisions);
     killChain = function(method, path, handler) {
       var route;
       route = server[method](path, function() {});
       return server.routes[route] = [authentication, handler];
     };
-    killChain('post', '/api/element', post.post);
-    return killChain('put', '/api/element/:key', put.put);
+    killChain('post', '/api/element', exports.post);
+    return killChain('put', '/api/element/:key', exports.put);
+  };
+
+  exports.getRevisions = function(req, res) {
+    return ElementRevisionResource.getRevisions(req.params.key, req.user.organization_id).then(function(revisions) {
+      return res.send(200, revisions);
+    }).fail(function(error) {
+      return res.send(500, error);
+    });
+  };
+
+  exports.get = function(req, res) {
+    return ElementRevisionResource.findRevision(req.params.key, req.params.revision, req.user.organization_id).then(function(element) {
+      var data, headers;
+      data = element.data;
+      headers = {
+        'X-Element-Revision': element.revision,
+        'X-Element-Publish-Revision': -1,
+        'X-Element-Type-Id': element.type_id || -1,
+        'X-Element-Type-Revision': element.type_revision || 0,
+        'Content-Length': data.data.length,
+        'Content-Type': data.content_type
+      };
+      Object.keys(headers).forEach(function(key) {
+        return res.setHeader(key, headers[key]);
+      });
+      res.writeHead(200);
+      res.write(data.data);
+      return res.end();
+    }).fail(function(error) {
+      return res.send(500, error);
+    });
+  };
+
+  exports.put = function(req, res) {
+    var instance, _ref;
+    instance = ElementRevisionResource.create();
+    instance.organization_id = req.user.organization_id;
+    instance.revision_map_key = (_ref = req.params) != null ? _ref.key : void 0;
+    return exports.requestToData(req).then(function(data) {
+      instance.data = data;
+      return ElementRevisionResource.save(instance);
+    }).then(function(instance) {
+      var status, _ref1;
+      if (((_ref1 = req.params) != null ? _ref1.key : void 0) == null) {
+        res.header("Location", "/api/element/" + instance.revision_map_key);
+      }
+      status = instance.$revision === 0 ? 201 : 204;
+      return res.send(status);
+    }).fail(function(error) {
+      return res.send(500, error);
+    });
+  };
+
+  exports.post = function(req, res, next) {
+    return exports.put(req, res, next);
+  };
+
+  exports.requestToData = function(req) {
+    var deferred, stream;
+    deferred = Q.defer();
+    stream = new WritableStreamBuffer();
+    console.log('req');
+    req.pipe(stream);
+    req.on('end', function() {
+      var contents;
+      contents = stream.getContents() || new Buffer(0);
+      return deferred.resolve({
+        data: contents,
+        content_type: req.getContentType()
+      });
+    });
+    return deferred.promise;
   };
 
 }).call(this);

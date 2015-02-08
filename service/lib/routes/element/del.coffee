@@ -1,4 +1,0 @@
-
-
-exports.del = ( req, res ) ->
-

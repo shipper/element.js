@@ -1,5 +1,5 @@
 (function() {
-  var Q, Type, authentication, uuid, _,
+  var Q, Type, authentication, element, uuid, _,
     __hasProp = {}.hasOwnProperty;
 
   Type = require('../../data/type');
@@ -12,7 +12,10 @@
 
   _ = require('lodash');
 
+  element = require('./element');
+
   exports.register = function(server) {
+    element.register(server);
     server.get('/api/type/base', exports.base);
     server.get('/api/type', authentication, exports.find);
     server.post('/api/type', authentication, exports.post);

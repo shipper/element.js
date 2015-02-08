@@ -3,8 +3,12 @@ authentication  = require( '../../authentication' )
 uuid            = require( 'node-uuid' )
 Q               = require( 'q' )
 _               = require( 'lodash' )
+element         = require( './element' )
 
 exports.register = ( server ) ->
+
+  element.register( server )
+
   server.get(  '/api/type/base',                            exports.base          )
 
   server.get(  '/api/type',                 authentication, exports.find          )

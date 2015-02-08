@@ -10,54 +10,31 @@
   uuid = require('node-uuid');
 
   module.exports = new Schema({
-    type_name: {
-      type: String,
-      "default": function() {
-        return 'Default';
+    type_id: ObjectId,
+    type_revision_map: ObjectId,
+    type_revision: Number,
+    data: {
+      content_type: {
+        type: String,
+        required: true
+      },
+      data: {
+        type: Buffer
       }
     },
-    type_id: ObjectId,
-    data: {
-      content_type: String,
-      data: Buffer
-    },
-    publish_revision: {
-      type: Number,
-      "default": 0
-    },
-    revision: {
-      type: Number,
-      "default": 0
-    },
-    base_id: {
-      type: ObjectId
-    },
-    create_date: {
-      type: Date,
-      "default": Date.now
-    },
+    published: Boolean,
+    publish_date: Date,
     organization_id: {
       type: ObjectId,
       required: true
     },
-    key: {
-      type: String,
-      "default": function() {
-        return uuid.v4();
-      }
+    revision_map_id: {
+      type: ObjectId,
+      required: true
     },
-    uuid: {
-      type: String,
-      "default": function() {
-        return uuid.v4();
-      }
-    },
-    published: {
-      type: Boolean,
-      "default": function() {
-        return false;
-      }
-    }
+    revision_map_key: String,
+    revision: Number,
+    revision_key: String
   });
 
 }).call(this);
