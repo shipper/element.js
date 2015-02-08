@@ -32,7 +32,7 @@ ElementCtrl = ( $scope, $http, $routeParams ) ->
 
     if $routeParams.key
       $http.get( "/api/element/#{ $routeParams.key }" )
-      .then( ( element ) ->
+      .success( ( element ) ->
         $scope.element = element
       )
     else

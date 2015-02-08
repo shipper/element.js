@@ -26,7 +26,7 @@
     return $http.get("/api/type/" + $routeParams.type + "/definition").success(function(definition) {
       $scope.definition = definition;
       if ($routeParams.key) {
-        return $http.get("/api/element/" + $routeParams.key).then(function(element) {
+        return $http.get("/api/element/" + $routeParams.key).success(function(element) {
           return $scope.element = element;
         });
       } else {

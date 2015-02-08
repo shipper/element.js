@@ -1,14 +1,8 @@
 div#element( layout="column" layout-align="center center" flex )
    md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="center center" flex )
-      div( layout="row" layout-align="center center" flex )
-         md-input-container( flex='40' )
-            label Element name
-            input( type="text" ng-model='values.name' )
-         span( flex )
-         md-button.md-primary.md-raised#save( ng-click="save()" ) Save
-      md-divider
       div( layout="row" layout-align="center center" flex ng-repeat="(key, value) in definition" )
          md-input-container( flex='40' )
             label {{ key }}
             input( type="text" ng-model='element[ key ]' )
          span( flex )
+         md-button.md-primary.md-raised#save( ng-click="save()" ) Save
