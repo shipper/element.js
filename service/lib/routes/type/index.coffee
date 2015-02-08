@@ -23,6 +23,10 @@ exports.register = ( server ) ->
   server.get(  '/api/type/:key/definition', authentication, exports.getDefinition )
   server.del(  '/api/type/:key',            authentication, exports.del           )
 
+  server.get(  '/api/type/:key/revisions/:revision',           authentication, exports.get           )
+  server.get(  '/api/type/:key/revisions',                     authentication, exports.getRevisions  )
+
+
 exports.base = ( req, res ) ->
 
   base = { }
@@ -59,6 +63,20 @@ exports.put = ( req, res ) ->
   .fail( ( error ) ->
     res.send( 500, error )
   )
+
+exports.getRevisions = ( req, res ) ->
+  TypeRevisionResource
+  .getRevisions(
+    req.params.key,
+    req.user.organization_id
+  )
+  .then( ( revisions ) ->
+    return res.send( 200, revisions )
+  )
+  .fail( ( error ) ->
+    return res.send( 500, error )
+  )
+
 
 exports.get = ( req, res ) ->
 

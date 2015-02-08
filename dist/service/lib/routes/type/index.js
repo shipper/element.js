@@ -28,7 +28,9 @@
     server.put('/api/type/:key', authentication, exports.put);
     server.get('/api/type/:key', authentication, exports.get);
     server.get('/api/type/:key/definition', authentication, exports.getDefinition);
-    return server.del('/api/type/:key', authentication, exports.del);
+    server.del('/api/type/:key', authentication, exports.del);
+    server.get('/api/type/:key/revisions/:revision', authentication, exports.get);
+    return server.get('/api/type/:key/revisions', authentication, exports.getRevisions);
   };
 
   exports.base = function(req, res) {
@@ -65,6 +67,14 @@
       }
       status = instance.$revision === 0 ? 201 : 204;
       return res.send(status);
+    }).fail(function(error) {
+      return res.send(500, error);
+    });
+  };
+
+  exports.getRevisions = function(req, res) {
+    return TypeRevisionResource.getRevisions(req.params.key, req.user.organization_id).then(function(revisions) {
+      return res.send(200, revisions);
     }).fail(function(error) {
       return res.send(500, error);
     });
