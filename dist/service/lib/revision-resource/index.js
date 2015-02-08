@@ -86,7 +86,7 @@
                 revision_obj = revision_possible;
                 continue;
               }
-              if (!(revision_possible.revision > revision_possible)) {
+              if (!(revision_possible.revision > revision_obj.revision)) {
                 continue;
               }
               revision_obj = revision_possible;

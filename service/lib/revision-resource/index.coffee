@@ -36,6 +36,7 @@ class RevisionResources
 
   findRevision: ( key, revision = -1, org, key_type = 'key' ) ->
 
+
     if typeof revision is 'string'
       revision_num = parseInt( revision, 10 )
       unless isNaN( revision_num )
@@ -60,7 +61,7 @@ class RevisionResources
           unless revision_obj?
             revision_obj = revision_possible
             continue
-          unless revision_possible.revision > revision_possible
+          unless revision_possible.revision > revision_obj.revision
             continue
           revision_obj = revision_possible
           continue
