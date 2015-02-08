@@ -1,0 +1,40 @@
+@import '../../../../bower_components/Hover/less/hover.less';
+
+#type_select {
+  padding-left: 1em;
+  padding-right: 1em;
+
+  button {
+    width: 100%;
+  }
+}
+
+#type_selector {
+  width: 400px;
+
+  .md-subheader {
+    margin-left: 0 !important;
+  }
+
+  .type {
+
+    cursor: pointer;
+
+    .hardwareAccel();
+    .improveAntiAlias();
+    .fontSmooth();
+
+    overflow: hidden;
+
+    .prefixed(transition-duration, @fastDuration);
+    .prefixed(transition-property, ~"color, background-color");
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: @activeColor;
+      color: white;
+    }
+
+  }
+}

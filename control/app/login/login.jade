@@ -1,0 +1,16 @@
+//
+   Created by fabian on 4/02/15.
+div#login( layout="column" layout-align="center center" )
+   md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="center center" )
+      div( layout="row" flex )
+         md-input-container( flex )
+            label Username
+            input( ng-model="user.username" type="text" )
+      div( layout="row" flex )
+         md-input-container( flex )
+            label Password
+            input( ng-model="user.password" type="password" )
+      div( layout="row" flex )
+         md-button.md-raised.md-primary( flex ng-click="login()") Login
+      div( layout="row" flex layout-align="center center")
+         md-button.md-raised.md-default( flex disabled ) Forgot password

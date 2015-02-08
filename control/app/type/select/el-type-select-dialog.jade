@@ -1,0 +1,31 @@
+//
+   Created by fabian on 5/02/15.
+
+md-dialog#type_selector(aria-label='Select a type')
+   md-content
+      md-subheader( layout="column" )
+         div(layout="row" layout-align="center center")
+            .md-sticky-no-effect Select a type
+      md-list
+         md-item( ng-repeat="value in typesValues" )
+            md-item-content.type( ng-click="select( value )" )
+               .md-tile-content
+                  h3 {{ value.name }}
+                  p {{ value.description }}
+
+      //
+         md-item-content>
+          <div class="md-tile-left">
+              <img ng-src="{{item.face}}" class="face" alt="{{item.who}}">
+          </div>
+          <div class="md-tile-content">
+            <h3>{{item.what}}</h3>
+            <h4>{{item.who}}</h4>
+            <p>
+              {{item.notes}}
+            </p>
+          </div>
+         </md-item-content>
+
+   .md-actions(layout='row' layout-align='end center')
+      md-button(ng-click="cancel()") Cancel

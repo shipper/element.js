@@ -1,0 +1,40 @@
+div#type( layout="column" layout-align="center center" )
+    md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="center center" )
+        div( layout="row" layout-align="center center" flex )
+            md-input-container( flex='40' )
+                label Type name
+                input( type="text" ng-model='values.name' )
+            span( flex )
+            md-button.md-primary.md-raised#save( ng-click="save()" ) Save
+
+        div( layout="row" layout-align="center center" flex )
+            md-input-container( flex='40' )
+                label Type description
+                input( type="text" ng-model='values.description' )
+            span( flex )
+
+        div( layout="row" layout-align="start center" flex )
+
+            md-input-container( flex='40' )
+                label &#43; Property Name
+                input( type="text" ng-model='property.name' )
+
+            md-switch.md-warn(ng-model="property.required" aria-label="Required")
+
+            div( layout="row" layout-align="center center" flex='25' )
+                el-type-select( flex el-selected='property.type' type="'base'" )
+                md-button.md-primary( flex ng-click='property.add()' ng-disabled="!property.valid()" ) Add
+
+        div( layout="row" layout-align="start center" flex ng-repeat="prop in values.properties | orderBy:'index'" )
+            div( layout="row" layout-align="start center" flex )
+                md-input-container( flex='40' )
+                    label Property Name
+                    input( type="text" ng-model='prop.name' )
+
+                md-switch.md-warn(ng-model="prop.required" aria-label="Required")
+
+                div( layout="row" layout-align="center center" flex='25' )
+                    el-type-select( el-selected='prop.type' type="'base'" flex='50')
+                    md-button.md-warn( flex ng-click='prop.remove()' ) Remove
+
+

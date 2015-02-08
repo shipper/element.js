@@ -1,0 +1,22 @@
+div#settings( layout="column" layout-align="center center" )
+   md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="start center" )
+      div( layout="row" layout-align="start center" flex )
+         h3 General Account
+      div( layout="row" layout-align="start center" flex )
+         div( layout="column" layout-align="start center" flex )
+            div( layout="row" layout-align="start center")
+               md-input-container( flex='33' )
+                  label Old password
+                  input( type="password" ng-model='password.old' )
+            div( layout="row" layout-align="start center")
+               md-input-container( flex='33' )
+                  label New password
+                  input( type="password" ng-model='property.new' )
+            div( layout="row" layout-align="start center")
+               md-input-container( flex='33' )
+                  label Confirm password
+                  input( type="password" ng-model='property.confirm' )
+            div( layout="row" layout-align="start center")
+               md-button.md-raised( flex='33' ) Change password
+
+

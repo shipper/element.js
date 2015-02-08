@@ -1,0 +1,17 @@
+//
+   Created by fabian on 3/02/15.
+
+doctype html
+html( ng-app="ngElement" ng-controller='AppCtrl' )
+   head
+      title Element.JS
+
+   body( layout="column" )
+      md-toolbar( layout="row" md-scroll-shrink)
+         .md-toolbar-tools
+            a( href="#/home" ) Element.JS
+         .md-toolbar-tools( layout-align="end center" )
+            md-button( ng-href="#/settings" ) Settings
+
+      md-content.md-padding
+         ng-view

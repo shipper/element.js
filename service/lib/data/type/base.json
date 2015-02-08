@@ -1,0 +1,69 @@
+{
+  "String": {
+    "name": "Text",
+    "type": "string",
+    "description": "General text field"
+  },
+  "StringLong": {
+    "name": "Long Text",
+    "type": "string",
+    "description": "Long text field"
+  },
+  "Alpha": {
+    "name": "Alphabetic",
+    "type": "alpha",
+    "description": "Alphabetic characters"
+  },
+  "AlphaNumeric": {
+    "name": "Alpha numeric",
+    "type": "alphanum",
+    "description": "Alphabetic characters and numbers"
+  },
+  "Email": {
+    "name": "Email",
+    "type": "email",
+    "description": "Text in the form of an email"
+  },
+  "Type": {
+    "disabled": true,
+    "name": "Nested type",
+    "type": "object",
+    "description": "A nested type"
+  },
+  "Object": {
+    "disabled": true,
+    "name": "Nested object",
+    "type": "object",
+    "description": "A nested object with no specific type"
+  },
+  "Array": {
+    "name": "List",
+    "type": "array",
+    "description": "A list of content"
+  },
+  "Date": {
+    "name": "Date",
+    "type": "date",
+    "description": "Specify a date and time"
+  },
+  "Number": {
+    "name": "Number",
+    "type": "int",
+    "description": "A number with no decimal places"
+  },
+  "Integer": {
+    "name": "Decimal",
+    "type": "number",
+    "description": "A number with optional decimal places"
+  },
+  "Boolean": {
+    "name": "Yes/No",
+    "type": "boolean",
+    "description": "A yes or no value"
+  },
+  "Url": {
+    "name": "Link",
+    "type": "url",
+    "description": "Text in the form of a link"
+  }
+}

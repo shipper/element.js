@@ -1,0 +1,11 @@
+//
+   Created by fabian on 6/02/15.
+
+div#types( layout="column" layout-align="center center" )
+   md-whiteframe.md-whiteframe-z1.content( layout="row" layout-align="start center" )
+      md-list( flex )
+         md-item( ng-repeat="type in results" )
+            md-item-content.item( ng-click="goto( type )" )
+               .md-tile-content
+                  h3 {{ type.name }}
+                  p {{ type.description }}

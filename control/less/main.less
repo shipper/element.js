@@ -1,0 +1,43 @@
+
+@import './images.less';
+
+@import '../app/element/element.less';
+@import '../app/login/login.less';
+@import '../app/types/types.less';
+@import '../app/type/type.less';
+@import '../app/type/select/el-type-select.less';
+@import '../app/settings/settings.less';
+
+
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.simpleFade {
+  cursor: pointer;
+
+  .hardwareAccel();
+  .improveAntiAlias();
+  .fontSmooth();
+
+  overflow: hidden;
+
+  .prefixed(transition-duration, @fastDuration);
+  .prefixed(transition-property, ~"color, background-color");
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: @activeColor;
+    color: white;
+  }
+}

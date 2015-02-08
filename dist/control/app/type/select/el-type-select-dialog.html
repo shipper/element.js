@@ -1,0 +1,14 @@
+<!--Created by fabian on 5/02/15.
+--><md-dialog id="type_selector" aria-label="Select a type"><md-content><md-subheader layout="column"><div layout="row" layout-align="center center"><div class="md-sticky-no-effect">Select a type</div></div></md-subheader><md-list><md-item ng-repeat="value in typesValues"><md-item-content ng-click="select( value )" class="type"><div class="md-tile-content"><h3>{{ value.name }}</h3><p>{{ value.description }}</p></div></md-item-content></md-item></md-list><!--md-item-content>
+ <div class="md-tile-left">
+     <img ng-src="{{item.face}}" class="face" alt="{{item.who}}">
+ </div>
+ <div class="md-tile-content">
+   <h3>{{item.what}}</h3>
+   <h4>{{item.who}}</h4>
+   <p>
+     {{item.notes}}
+   </p>
+ </div>
+</md-item-content>
+--></md-content><div layout="row" layout-align="end center" class="md-actions"><md-button ng-click="cancel()">Cancel</md-button></div></md-dialog>
