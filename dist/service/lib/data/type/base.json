@@ -36,6 +36,11 @@
     "type": "object",
     "description": "A nested object with no specific type"
   },
+  "File": {
+    "disabled": true,
+    "name": "File",
+    "description": "Upload a file"
+  },
   "Array": {
     "name": "List",
     "type": "array",
