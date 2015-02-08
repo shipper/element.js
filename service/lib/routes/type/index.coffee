@@ -62,7 +62,6 @@ exports.put = ( req, res ) ->
       deferred.resolve( type )
 
       return
-
   )
 
   deferred

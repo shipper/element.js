@@ -1,6 +1,6 @@
 Element                   = require( '../../data/element' )
 Q                         = require( 'q' )
-WritableStreamBuffer      = require( '../../stream/writable-stream-buffer' )
+{ WritableStreamBuffer }  = require( 'stream-buffers' )
 get                       = require( './get' )
 Type                      = require( '../../data/type' )
 
@@ -8,15 +8,10 @@ exports.requestToData = ( req ) ->
   deferred = Q.defer( )
   stream = new WritableStreamBuffer( )
 
-  console.log( 'stream' )
 
-  try
-    req.pipe( stream )
-  catch e
-    console.log( e )
+  req.pipe( stream )
 
   req.on( 'end', ->
-    console.log( 'end' )
     contents = stream.getContents( ) or new Buffer( 0 )
 
     deferred.resolve(
@@ -24,29 +19,6 @@ exports.requestToData = ( req ) ->
       content_type: req.getContentType( )
     )
   )
-  ###
-
-  req.on( 'error', ( error ) ->
-    console.log( 'error' )
-    deferred.reject( error )
-  )
-
-  req.on( 'data', ( data ) ->
-    console.log( 'data' )
-    stream.write( data )
-  )
-
-  req.on( 'end', ->
-    console.log( 'end' )
-    contents = stream.getContents( ) or new Buffer( 0 )
-
-    deferred.resolve(
-      data: contents,
-      content_type: req.getContentType( )
-    )
-  )
-  console.log( 'return promise' )
-  ###
 
   return deferred.promise
 

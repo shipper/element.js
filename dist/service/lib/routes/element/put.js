@@ -5,56 +5,25 @@
 
   Q = require('q');
 
-  WritableStreamBuffer = require('../../stream/writable-stream-buffer');
+  WritableStreamBuffer = require('stream-buffers').WritableStreamBuffer;
 
   get = require('./get');
 
   Type = require('../../data/type');
 
   exports.requestToData = function(req) {
-    var deferred, e, stream;
+    var deferred, stream;
     deferred = Q.defer();
     stream = new WritableStreamBuffer();
-    console.log('stream');
-    try {
-      req.pipe(stream);
-    } catch (_error) {
-      e = _error;
-      console.log(e);
-    }
+    req.pipe(stream);
     req.on('end', function() {
       var contents;
-      console.log('end');
       contents = stream.getContents() || new Buffer(0);
       return deferred.resolve({
         data: contents,
         content_type: req.getContentType()
       });
     });
-
-    /*
-    
-    req.on( 'error', ( error ) ->
-      console.log( 'error' )
-      deferred.reject( error )
-    )
-    
-    req.on( 'data', ( data ) ->
-      console.log( 'data' )
-      stream.write( data )
-    )
-    
-    req.on( 'end', ->
-      console.log( 'end' )
-      contents = stream.getContents( ) or new Buffer( 0 )
-    
-      deferred.resolve(
-        data: contents,
-        content_type: req.getContentType( )
-      )
-    )
-    console.log( 'return promise' )
-     */
     return deferred.promise;
   };
 

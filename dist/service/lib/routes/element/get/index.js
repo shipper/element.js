@@ -147,20 +147,25 @@
 
   exports.get = function(req, res) {
     return exports.getElement(req.user, req.params.key, req.params.revision).then(function(element) {
-      var data, publish_revision;
+      var data, headers, publish_revision;
       data = element.data;
       publish_revision = element.publish_revision || 0;
       if (!element.published) {
         publish_revision = -1;
       }
-      res.writeHead(200, {
+      headers = {
         'X-Element-Revision': element.revision,
         'X-Element-Publish-Revision': publish_revision,
         'X-Element-Type': element.type_name,
         'X-Element-Type-Id': element.type_id || -1,
+        'X-Element-Type-Revision': element.type_revision || 0,
         'Content-Length': data.data.length,
         'Content-Type': data.content_type
+      };
+      Object.keys(headers).forEach(function(key) {
+        return res.setHeader(key, headers[key]);
       });
+      res.writeHead(200);
       res.write(data.data);
       return res.end();
     }).fail(function() {

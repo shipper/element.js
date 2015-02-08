@@ -47,6 +47,7 @@
     };
 
     ElementInstance.prototype._registerRoutes = function() {
+      this.routes = this.client.routes;
       return routes.register(this);
     };
 

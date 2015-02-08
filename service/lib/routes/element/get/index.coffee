@@ -187,19 +187,26 @@ exports.get = ( req, res ) ->
     unless element.published
       publish_revision = -1
 
-
-    res.writeHead(200, {
+    headers = {
       'X-Element-Revision': element.revision
       'X-Element-Publish-Revision': publish_revision
       'X-Element-Type': element.type_name
       'X-Element-Type-Id': element.type_id or -1
+      'X-Element-Type-Revision': element.type_revision or 0
       'Content-Length': data.data.length
       'Content-Type': data.content_type
-    })
+    }
+
+    Object.keys( headers ).forEach( ( key ) ->
+      res.setHeader( key, headers[ key ] )
+    )
+
+    res.writeHead( 200 )
 
     res.write( data.data )
 
     res.end( )
+
   )
   .fail( ->
     res.send( 404 )

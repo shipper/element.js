@@ -22,16 +22,22 @@
   ElementResource = new Resource(Element, 'data', 'key');
 
   exports.register = function(server) {
+    var killChain;
     server.get('/api/element', authentication, get.getAll);
-    server.post('/api/element', authentication, post.post);
-    server.put('/api/element/:key', authentication, put.put);
     server.put('/api/element/:key/publish', authentication, put.publish);
     server.put('/api/element/:key/revisions/:revision/publish', authentication, put.publish);
     server.del('/api/element/:key', authentication, del.del);
     server.get('/api/element/:key', authentication, get.get);
     server.get('/api/element/:key/metadata', authentication, get.getMetadata);
     server.get('/api/element/:key/revisions/:revision', authentication, get.get);
-    return server.get('/api/element/:key/revisions', authentication, get.getRevisions);
+    server.get('/api/element/:key/revisions', authentication, get.getRevisions);
+    killChain = function(method, path, handler) {
+      var route;
+      route = server[method](path, function() {});
+      return server.routes[route] = [authentication, handler];
+    };
+    killChain('post', '/api/element', post.post);
+    return killChain('put', '/api/element/:key', put.put);
   };
 
 }).call(this);

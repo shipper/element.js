@@ -34,6 +34,9 @@ class ElementInstance
       @[ key ] = val.bind( @client )
 
   _registerRoutes: ->
+
+    @routes = @client.routes
+
     routes.register( @ )
     
 
