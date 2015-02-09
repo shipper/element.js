@@ -1,5 +1,5 @@
 (function() {
-  var ElementRevisionResource, Q, RevisionResource, Schema, WritableStreamBuffer, authentication;
+  var ElementRevisionResource, Q, RevisionResource, Schema, TypeRevisionResource, WritableStreamBuffer, authentication, type;
 
   authentication = require('../../authentication');
 
@@ -11,7 +11,13 @@
 
   Q = require('q');
 
+  type = require('../type');
+
+  TypeRevisionResource = type.TypeRevisionResource;
+
   ElementRevisionResource = new RevisionResource('Element', Schema);
+
+  exports.ElementRevisionResource = ElementRevisionResource;
 
   exports.register = function(server) {
     var killChain;
@@ -69,7 +75,7 @@
       headers = {
         'X-Element-Revision': element.revision,
         'X-Element-Publish-Revision': -1,
-        'X-Element-Type-Id': element.type_id || -1,
+        'X-Element-Type-Key': element.type_key,
         'X-Element-Type-Revision': element.type_revision || 0,
         'Content-Length': data.data.length,
         'Content-Type': data.content_type
@@ -86,20 +92,38 @@
   };
 
   exports.put = function(req, res) {
-    var instance, _ref;
+    var instance, promise, revision_num, _ref;
     instance = ElementRevisionResource.create();
     instance.organization_id = req.user.organization_id;
     instance.revision_map_key = (_ref = req.params) != null ? _ref.key : void 0;
-    return exports.requestToData(req).then(function(data) {
-      instance.data = data;
-      return ElementRevisionResource.save(instance);
-    }).then(function(instance) {
-      var status, _ref1;
-      if (((_ref1 = req.params) != null ? _ref1.key : void 0) == null) {
-        res.header("Location", "/api/element/" + instance.revision_map_key);
+    instance.type_key = req.header('X-Element-Type-Key');
+    instance.type_revision = req.header('X-Element-Type-Revision');
+    if (typeof instance.type_revision === 'string') {
+      revision_num = parseInt(instance.type_revision, 10);
+      if (!isNaN(revision_num)) {
+        instance.type_revision = revision_num;
       }
-      status = instance.$revision === 0 ? 201 : 204;
-      return res.send(status);
+    }
+    promise = Q.resolve();
+    if (instance.type_key != null) {
+      promise = TypeRevisionResource.findRevision(instance.type_key, instance.type_revision, req.user.organization_id).then(function(type) {
+        instance.type_id = type.id;
+        instance.type_revision = type.revision;
+        return instance.type_key = type.revision_map_key;
+      });
+    }
+    return promise.then(function() {
+      return exports.requestToData(req).then(function(data) {
+        instance.data = data;
+        return ElementRevisionResource.save(instance);
+      }).then(function(instance) {
+        var status, _ref1;
+        if (((_ref1 = req.params) != null ? _ref1.key : void 0) == null) {
+          res.header("Location", "/api/element/" + instance.revision_map_key);
+        }
+        status = instance.$revision === 0 ? 201 : 204;
+        return res.send(status);
+      });
     }).fail(function(error) {
       return res.send(500, error);
     });

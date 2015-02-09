@@ -3,8 +3,13 @@ RevisionResource          = require( '../../revision-resource' )
 Schema                    = require( '../../data/element/schema' )
 { WritableStreamBuffer }  = require( 'stream-buffers' )
 Q                         = require( 'q' )
+type                      = require( '../type' )
+
+TypeRevisionResource = type.TypeRevisionResource
 
 ElementRevisionResource = new RevisionResource( 'Element', Schema )
+
+exports.ElementRevisionResource = ElementRevisionResource
 
 exports.register = ( server ) ->
   server.get(  '/api/element',                                    authentication, exports.getAll        )
@@ -100,7 +105,7 @@ exports.get = ( req, res ) ->
     headers = {
       'X-Element-Revision': element.revision
       'X-Element-Publish-Revision': -1
-      'X-Element-Type-Id': element.type_id or -1
+      'X-Element-Type-Key': element.type_key
       'X-Element-Type-Revision': element.type_revision or 0
       'Content-Length': data.data.length
       'Content-Type': data.content_type
@@ -128,22 +133,48 @@ exports.put = ( req, res ) ->
   instance.organization_id = req.user.organization_id
   instance.revision_map_key = req.params?.key
 
-  exports.requestToData( req )
-  .then( ( data ) ->
-    instance.data = data
+  instance.type_key = req.header('X-Element-Type-Key')
+  instance.type_revision = req.header('X-Element-Type-Revision')
 
-    return ElementRevisionResource
-    .save(
-      instance
+  if typeof instance.type_revision is 'string'
+    revision_num = parseInt( instance.type_revision, 10 )
+
+    unless isNaN( revision_num )
+      instance.type_revision = revision_num
+
+  promise = Q.resolve( )
+
+  if instance.type_key?
+    promise = TypeRevisionResource
+    .findRevision(
+      instance.type_key,
+      instance.type_revision,
+      req.user.organization_id
     )
-  )
-  .then( ( instance ) ->
+    .then( ( type ) ->
+      instance.type_id = type.id
+      instance.type_revision = type.revision
+      instance.type_key = type.revision_map_key
+    )
 
-    unless req.params?.key?
-      res.header( "Location", "/api/element/#{ instance.revision_map_key }" )
+  promise.then( ->
+    return exports.requestToData( req )
+    .then( ( data ) ->
+      instance.data = data
 
-    status = if instance.$revision is 0 then 201 else 204
-    res.send( status )
+      return ElementRevisionResource
+      .save(
+        instance
+      )
+    )
+    .then( ( instance ) ->
+
+      unless req.params?.key?
+        res.header( "Location", "/api/element/#{ instance.revision_map_key }" )
+
+      status = if instance.$revision is 0 then 201 else 204
+      res.send( status )
+    )
   )
   .fail( ( error ) ->
     res.send( 500, error )

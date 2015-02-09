@@ -20,6 +20,8 @@
 
   TypeRevisionResource = new RevisionResource('Type', Schema);
 
+  exports.TypeRevisionResource = TypeRevisionResource;
+
   exports.register = function(server) {
     element.register(server);
     server.get('/api/type/base', exports.base);

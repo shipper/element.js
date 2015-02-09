@@ -12,7 +12,7 @@ validate = ( token, next ) ->
     .then( ( agent ) ->
       if (
         agent.api_key isnt decoded.api_key or
-        agent.disabled is false
+        agent.disabled is true
       )
         return next( new Error( 'Token invalid' ) )
       next( null, agent )

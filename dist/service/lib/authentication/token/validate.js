@@ -12,7 +12,7 @@
     }
     getAgent = function(decoded) {
       return Agent.findByUUID(decoded.key).then(function(agent) {
-        if (agent.api_key !== decoded.api_key || agent.disabled === false) {
+        if (agent.api_key !== decoded.api_key || agent.disabled === true) {
           return next(new Error('Token invalid'));
         }
         return next(null, agent);

@@ -9,6 +9,8 @@ RevisionResource = require( '../../revision-resource' )
 
 TypeRevisionResource = new RevisionResource( 'Type', Schema )
 
+exports.TypeRevisionResource = TypeRevisionResource
+
 exports.register = ( server ) ->
 
   element.register( server )

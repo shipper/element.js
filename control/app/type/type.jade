@@ -21,7 +21,7 @@ div#type( layout="column" layout-align="center center" )
 
             md-switch.md-warn(ng-model="property.required" aria-label="Required")
 
-            div( layout="row" layout-align="center center" flex='25' )
+            div( layout="row" layout-align="center center" flex='40' )
                 el-type-select( flex el-selected='property.type' type="'base'" )
                 md-button.md-primary( flex ng-click='property.add()' ng-disabled="!property.valid()" ) Add
 
@@ -33,7 +33,7 @@ div#type( layout="column" layout-align="center center" )
 
                 md-switch.md-warn(ng-model="prop.required" aria-label="Required")
 
-                div( layout="row" layout-align="center center" flex='25' )
+                div( layout="row" layout-align="center center" flex='40' )
                     el-type-select( el-selected='prop.type' type="'base'" flex='50')
                     md-button.md-warn( flex ng-click='prop.remove()' ) Remove
 
