@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register -R spec",
+    "test": "mocha --compilers coffee:coffee-script/register -R spec ./test",
     "start": "node ./dist/service",
     "start_dev": "gulp && node ./dist/service"
   },
