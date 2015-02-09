@@ -2,5 +2,5 @@ deployment:
   production:
     branch: master
     commands:
-      - apt-get install sshpass
+      - sudo apt-get install sshpass
       - sshpass -p $SSH_PASSWORD ssh -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST "cd ~/element.js && pull origin master"
