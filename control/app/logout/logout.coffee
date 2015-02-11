@@ -8,6 +8,8 @@ LogoutConfig = ( $routeProvider ) ->
   .when( '/logout', {
     templateUrl: 'app/logout/logout.html',
     controller: 'LogoutCtrl'
+    data:
+      title: 'Logout'
   })
 
 LogoutConfig.$inject = [ '$routeProvider' ]

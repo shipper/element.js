@@ -1,0 +1,27 @@
+div#elements( layout="column" layout-align="center center" )
+  md-toolbar( layout="row" )
+    h2.md-toolbar-tools Elements for {{ type.name }}
+    .md-toolbar-tools( layout="row" layout-align="end center")
+      md-button.md-raised.md-primary( ng-click="new()" ) New Element
+      | &nbsp;
+      md-button( ng-click="edit()" ) Edit Type
+      | &nbsp;
+      md-button.md-warn( ng-click="delete()" ) Delete Type
+  md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="start center" )
+    md-list( flex )
+      md-item
+        md-item-content
+          .md-tile-content( layout="row" )
+            .header( flex='60' layout layout-align="start center" ) {{ getMainProperty( ) }}
+            .header( flex ) Updated
+            .header( flex ) Created
+            .header( flex ) Status
+            .header( flex ) Revisions
+      md-item( ng-repeat="element in elements" )
+        md-item-content.item( ng-click="gotoElement( element )" )
+          .md-tile-content( layout="row" )
+            h3( flex='60' layout layout-align="start center" ) {{ getMain( element ) }}
+            p( flex ) {{ element.update_date }}
+            p( flex ) {{ element.create_date }}
+            p( flex ) {{ element.status || 'Draft' }}
+            p( flex ) {{ element.revision + 1 }}

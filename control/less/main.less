@@ -1,13 +1,19 @@
-
 @import './images.less';
 
 @import '../app/element/element.less';
+@import '../app/elements/elements.less';
 @import '../app/login/login.less';
-@import '../app/types/types.less';
 @import '../app/type/type.less';
 @import '../app/type/select/el-type-select.less';
 @import '../app/settings/settings.less';
+@import '../app/home/home.less';
 
+//Unleash the beast
+///@import ( inline ) './evil.css';
+
+[ng-click], [href] {
+  cursor: pointer;
+}
 
 .text-left {
   text-align: left;
@@ -21,7 +27,7 @@
   text-align: center;
 }
 
-.simpleFade {
+.simpleFade ( @backgroundColor: @activeColor, @fontColor: 'white' ) {
   cursor: pointer;
 
   .hardwareAccel();
@@ -36,7 +42,18 @@
   &:hover,
   &:focus,
   &:active {
-    background-color: @activeColor;
-    color: white;
+    background-color: @backgroundColor;
+    color: @fontColor;
+  }
+}
+
+#back-wrapper {
+  width: 48px;
+  height: 48px;
+  #back {
+    width: 48px;
+    height: 48px;
+    background: url( "../assets/back.png" ) center center no-repeat;
+    background-size: 24px 24px;
   }
 }

@@ -1,11 +1,13 @@
 (function() {
-  var ExternalRevision, RevisionArray, _,
+  var ExternalRevision, Q, RevisionArray, _,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __hasProp = {}.hasOwnProperty;
 
   ExternalRevision = require('./external-revision');
 
   _ = require('lodash');
+
+  Q = require('q');
 
   RevisionArray = (function(_super) {
     __extends(RevisionArray, _super);
@@ -24,6 +26,22 @@
         })(this));
       }
     }
+
+    RevisionArray.prototype.save = function() {
+      var callback, deferred;
+      deferred = Q.defer();
+      this.revision_model.revisions = this;
+      callback = (function(_this) {
+        return function(err) {
+          if (err) {
+            return deferred.reject(err);
+          }
+          return deferred.resolve(_this);
+        };
+      })(this);
+      this.revision_model.save(callback);
+      return deferred.promise;
+    };
 
     RevisionArray.prototype.toBSON = function() {
       return this.toJSON();

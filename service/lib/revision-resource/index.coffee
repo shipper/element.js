@@ -24,6 +24,8 @@ class RevisionResources
       throw new Error( "Schema does not include 'organization_id'")
     unless @schema.tree['id']?
       throw new Error( "Schema does not include 'id'")
+    unless @schema.tree['library']?
+      throw new Error( "Schema does not include 'library'")
 
     @model = mongoose.model( @name, @schema )
     @revisonModel = Revision.define( @name )
@@ -31,16 +33,49 @@ class RevisionResources
   create: ->
     return new @model( )
 
-  find: ( key, org ) ->
-    return @findRevision( key, -1, org )
-
-  findRevision: ( key, revision = -1, org, key_type = 'key' ) ->
-
+  $resolveRevision: ( revision ) ->
+    key = 'key'
 
     if typeof revision is 'string'
       revision_num = parseInt( revision, 10 )
       unless isNaN( revision_num )
         revision = revision_num
+
+    if typeof revision is 'number'
+      key = 'revision'
+
+    return {
+      revision: revision
+      key:key
+    }
+
+  $findRevision: ( revisions, revision = -1 ) ->
+    revision_data = @$resolveRevision( revision )
+
+    revision = revision_data.revision
+    revision_key = revision_data.key
+
+    revision_obj = null
+
+    for revision_possible in revisions
+      if revision_key is 'revision' and revision is -1
+        unless revision_obj?
+          revision_obj = revision_possible
+          continue
+        unless revision_possible.revision > revision_obj.revision
+          continue
+        revision_obj = revision_possible
+        continue
+      else if revision_possible[ revision_key ] is revision
+        revision_obj = revision_possible
+        break
+
+    return revision_obj
+
+  find: ( key, org, lib = undefined ) ->
+    return @findRevision( key, -1, org, null, lib )
+
+  findRevision: ( key, revision = -1, org, key_type = 'key', lib = undefined ) ->
 
     deferred = Q.defer( )
 
@@ -49,25 +84,10 @@ class RevisionResources
         return deferred.reject( err )
       return deferred.resolve( document )
 
-    @getRevisions( key, org, key_type )
+    @getRevisions( key, org, key_type, lib )
     .then( ( revisions ) =>
 
-      revision_obj = null
-
-      revision_key = if typeof revision is 'string' then 'key' else 'revision'
-
-      for revision_possible in revisions
-        if revision_key is 'revision' and revision is -1
-          unless revision_obj?
-            revision_obj = revision_possible
-            continue
-          unless revision_possible.revision > revision_obj.revision
-            continue
-          revision_obj = revision_possible
-          continue
-        else if revision_possible[ revision_key ] is revision
-          revision_obj = revision_possible
-          break
+      revision_obj = @$findRevision( revisions, revision )
 
       unless revision_obj?
         return deferred.reject( 'Not Found' )
@@ -81,7 +101,7 @@ class RevisionResources
 
     return deferred.promise
 
-  getAll: ( org, reference = false ) ->
+  getAll: ( org, reference = false, lib = undefined ) ->
 
     deferred = Q.defer( )
 
@@ -127,18 +147,21 @@ class RevisionResources
       )
       .fail( deferred.reject )
 
+    opts = {
+      organization_id: org
+    }
 
+    if lib?
+      opts.library = lib
 
     @revisonModel.find(
-      {
-        organization_id: org
-      },
+      opts,
       find_callback
     )
 
     return deferred.promise
 
-  getRevisions: ( key, org, key_type = 'key' ) ->
+  getRevisions: ( key, org, key_type = 'key', lib = undefined ) ->
 
     unless key?
       return Q.resolve( new RevisionArray( new @revisonModel( ), [ ] ) )
@@ -155,6 +178,9 @@ class RevisionResources
 
         new_model.organization_id = org
 
+        if lib?
+          new_model.library = lib
+
         return deferred.resolve(
           new RevisionArray( new_model, [ ] )
         )
@@ -169,6 +195,8 @@ class RevisionResources
       index = -1
       for document, document_index in documents
         if document.delete_date?
+          continue
+        if lib? and document.library isnt lib
           continue
         count += 1
         index = document_index
@@ -187,6 +215,9 @@ class RevisionResources
       organization_id: org
     }
 
+    if key_type isnt 'id' and lib?
+      options.library = lib
+
     @revisonModel[ method ](
       options,
       find_callback
@@ -194,10 +225,10 @@ class RevisionResources
 
     return deferred.promise
 
-  update: ( instance ) ->
-    @save( instance )
+  update: ( instance, lib = undefined ) ->
+    @save( instance, lib )
 
-  save: ( instance ) ->
+  save: ( instance, lib = undefined ) ->
     deferred = Q.defer( )
 
     key = instance[ 'revision_map_id' ]
@@ -207,9 +238,14 @@ class RevisionResources
       key = instance[ 'revision_map_key' ]
       type = 'key'
 
+    unless lib?
+      lib = instance.library
+    else
+      instance.library = lib
+
     # else it will create a new one
 
-    @getRevisions( key , instance.organization_id, type )
+    @getRevisions( key , instance.organization_id, type, lib )
     .then( ( revisions ) =>
 
       biggest_revision = -1
@@ -235,10 +271,11 @@ class RevisionResources
       # Could be from the instance
       revisions.revision_model.key = map_key
 
-      model['revision_map_id'] = revisions.revision_model
+      model['revision_map_id'] = revisions.revision_model.id
       model['revision_map_key'] = map_key
       model['revision'] = revision
       model['revision_key'] = uuid.v4( )
+      model['library'] = revisions.revision_model.library
 
       revisions.push( model )
 
@@ -247,6 +284,7 @@ class RevisionResources
         create_date: new Date(),
         key: model['revision_key'],
         external_id: model.id
+        library: model['library']
       })
 
       revisions.revision_model.organization_id = model.organization_id
@@ -270,13 +308,23 @@ class RevisionResources
 
     return deferred.promise
 
-  delete: ( instance ) ->
-    deferred = Q.defer( )
+  delete: ( key, revision = -1, org, key_type = 'key', lib = undefined ) ->
 
+    return @getRevisions( key, org, key_type, lib )
+    .then( ( revisions ) =>
 
+      if revision is -1
+        revisions.revision_model.delete_date = new Date( )
+      else
+        revision_obj = @$findRevision( revisions, revision )
 
+        unless revision_obj?
+          throw new Error( 'Not Found' )
 
-    return deferred.promise
+        revision_obj.delete_date = new Date( )
+
+      return revisions.save( )
+    )
 
 
 

@@ -28,5 +28,6 @@ module.exports = exports = new Schema(
   revision_map_key: String
   revision: Number
   revision_key: String
+  library: String
 
 )

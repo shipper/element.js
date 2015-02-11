@@ -4,6 +4,7 @@
 doctype html
 html( ng-app="ngElement" ng-controller='AppCtrl' )
    head
+      base( href="/" )
       title Element.JS
 
       link( rel='icon' type='image/icon' href='/assets/favicon.ico?v=1' )
@@ -11,9 +12,15 @@ html( ng-app="ngElement" ng-controller='AppCtrl' )
    body( layout="column" )
       md-toolbar( layout="row" md-scroll-shrink)
          .md-toolbar-tools
+            #back-wrapper( ng-click="goBack()" )
+              #back( ng-show="!!back" ) &nbsp;
             a( href="#/home" ) Element.JS
-         .md-toolbar-tools( layout-align="end center" )
-            md-button( ng-href="#/settings" ) Settings
+            span( ng-show="!!title" ) &nbsp;&nbsp;|&nbsp;&nbsp;{{ title }}
+
+         .md-toolbar-tools( layout-align="end center" ng-show="!!Session.token" )
+            md-button.md-raised.md-primary( ng-click="project" ) {{ library || 'Project' }}
+            | &nbsp;
+            md-button.md-raised( ng-href="#/settings" ) Settings
 
       md-content.md-padding
          ng-view

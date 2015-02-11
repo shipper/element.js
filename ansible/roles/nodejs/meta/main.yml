@@ -1,0 +1,4 @@
+---
+allow_duplicated: yes
+dependencies:
+- { role: nginx }

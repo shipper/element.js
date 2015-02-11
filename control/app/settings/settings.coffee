@@ -7,6 +7,9 @@ SettingsConfig = ( $routeProvider ) ->
   .when( '/settings', {
       templateUrl: 'app/settings/settings.html',
       controller: 'SettingsCtrl'
+      data:
+        title: 'Settings'
+        back: '/home'
     })
   .otherwise( '/home' )
 

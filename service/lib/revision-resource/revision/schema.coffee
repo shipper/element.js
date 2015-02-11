@@ -41,4 +41,5 @@ module.exports = exports = new Schema(
     required: true
     default: ->
       return uuid.v4( )
+  library: String
 )

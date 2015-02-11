@@ -58,7 +58,8 @@
       "default": function() {
         return uuid.v4();
       }
-    }
+    },
+    library: String
   });
 
 }).call(this);

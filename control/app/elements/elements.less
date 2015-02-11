@@ -1,0 +1,43 @@
+
+#elements {
+
+  padding-top: 2em;
+  padding-left: 10em;
+  padding-right: 10em;
+
+  .content {
+    padding: 1em;
+    width: 100%;
+
+    md-list {
+      width: 90%;
+
+      .header {
+        font-size: 0.9em;
+        font-weight: 400;
+        line-height: 1em;
+      }
+
+      [role=listitem] .item {
+        &:not(:last-child) {
+          border-bottom: 1px solid #dddddd;
+        }
+
+        &[ng-click],
+        &[ng-href],
+        &[href] {
+          .simpleFade(
+            lighten(@activeColor, 50%),
+            @activeColor
+          );
+        }
+
+      }
+    }
+
+    [layout=row] {
+      width: 100%;
+    }
+  }
+
+}

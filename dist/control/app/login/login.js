@@ -20,7 +20,10 @@
   LoginConfig = function($routeProvider) {
     return $routeProvider.when('/login', {
       templateUrl: 'app/login/login.html',
-      controller: 'LoginCtrl'
+      controller: 'LoginCtrl',
+      data: {
+        title: 'Login'
+      }
     });
   };
 

@@ -4,12 +4,8 @@ Schema                    = require( '../../data/element/schema' )
 { WritableStreamBuffer }  = require( 'stream-buffers' )
 Q                         = require( 'q' )
 type                      = require( '../type' )
-
-TypeRevisionResource = type.TypeRevisionResource
-
-ElementRevisionResource = new RevisionResource( 'Element', Schema )
-
-exports.ElementRevisionResource = ElementRevisionResource
+ElementRevisionResource   = require( '../../revision-resource/element')
+TypeRevisionResource      = require( '../../revision-resource/type')
 
 exports.register = ( server ) ->
   server.get(  '/api/element',                                    authentication, exports.getAll        )
@@ -19,9 +15,9 @@ exports.register = ( server ) ->
   #server.del(  '/api/element/:key',                               authentication, del.del           )
   server.get(  '/api/element/:key',                               authentication, exports.get           )
   server.get(  '/api/element/:key/metadata',                      authentication, exports.getMetadata   )
-  server.get(  '/api/element/:key/revisions/:revision',           authentication, exports.get           )
-  server.get(  '/api/element/:key/revisions/:revision/metadata',  authentication, exports.getMetadata   )
-  server.get(  '/api/element/:key/revisions',                     authentication, exports.getRevisions  )
+  server.get(  '/api/element/:key/revision/:revision',           authentication, exports.get           )
+  server.get(  '/api/element/:key/revision/:revision/metadata',  authentication, exports.getMetadata   )
+  server.get(  '/api/element/:key/revision',                     authentication, exports.getRevisions  )
 
   killChain = ( method, path, handler ) ->
     route = server[ method ]( path, ->
@@ -29,7 +25,8 @@ exports.register = ( server ) ->
     )
 
     server.routes[ route ] = [
-      authentication,
+      authentication
+      server.elementInterceptor
       handler
     ]
 
@@ -105,7 +102,7 @@ exports.get = ( req, res ) ->
     headers = {
       'X-Element-Revision': element.revision
       'X-Element-Publish-Revision': -1
-      'X-Element-Type-Key': element.type_key
+      'X-Element-Type-Key': element.type_revision_map_key
       'X-Element-Type-Revision': element.type_revision or 0
       'Content-Length': data.data.length
       'Content-Type': data.content_type
@@ -152,9 +149,11 @@ exports.put = ( req, res ) ->
       req.user.organization_id
     )
     .then( ( type ) ->
-      instance.type_id = type.id
+      instance.type_id = type.type_id
+      instance.type_revision_map_id = type.revision_map_id
       instance.type_revision = type.revision
-      instance.type_key = type.revision_map_key
+      instance.type_revision_map_key = type.revision_map_key
+
     )
 
   promise.then( ->
@@ -172,7 +171,7 @@ exports.put = ( req, res ) ->
       unless req.params?.key?
         res.header( "Location", "/api/element/#{ instance.revision_map_key }" )
 
-      status = if instance.$revision is 0 then 201 else 204
+      status = if instance.revision is 0 then 201 else 204
       res.send( status )
     )
   )

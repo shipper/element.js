@@ -1,8 +1,11 @@
 div#element( layout="column" layout-align="center center" flex )
    md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="center center" flex )
-      div( layout="row" layout-align="center center" flex ng-repeat="(key, value) in definition" )
+      div( layout="row" layout-align="center center" flex ng-repeat="prop in definitionArray | orderBy:index" )
          md-input-container( flex='40' )
-            label {{ key }}
-            input( type="text" ng-model='element[ key ]' )
+            label {{ prop.key }}
+            input( type="text" ng-model='element[ prop.key ]' )
          span( flex )
-         md-button.md-primary.md-raised#save( ng-click="save()" ng-if="$index == 0" ) Save
+         div( ng-if="$index == 0" )
+          md-button.md-warn.md-raised( ng-click="publish()" ng-if="$index == 0" ) Publish
+          | &nbsp;
+          md-button.md-primary.md-raised( ng-click="save()" ng-if="$index == 0" ) {{ saveWording() }}

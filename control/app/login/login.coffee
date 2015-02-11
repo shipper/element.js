@@ -27,6 +27,8 @@ LoginConfig = ( $routeProvider ) ->
   .when( '/login', {
       templateUrl: 'app/login/login.html',
       controller: 'LoginCtrl'
+      data:
+        title: 'Login'
   })
 
 LoginConfig.$inject = [ '$routeProvider' ]

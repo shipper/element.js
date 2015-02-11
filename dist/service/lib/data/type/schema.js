@@ -36,7 +36,8 @@
     },
     revision_map_key: String,
     revision: Number,
-    revision_key: String
+    revision_key: String,
+    library: String
   });
 
   exports.statics.Base = Base;

@@ -10,7 +10,10 @@
   LogoutConfig = function($routeProvider) {
     return $routeProvider.when('/logout', {
       templateUrl: 'app/logout/logout.html',
-      controller: 'LogoutCtrl'
+      controller: 'LogoutCtrl',
+      data: {
+        title: 'Logout'
+      }
     });
   };
 

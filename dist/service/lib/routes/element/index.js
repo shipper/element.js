@@ -13,24 +13,22 @@
 
   type = require('../type');
 
-  TypeRevisionResource = type.TypeRevisionResource;
+  ElementRevisionResource = require('../../revision-resource/element');
 
-  ElementRevisionResource = new RevisionResource('Element', Schema);
-
-  exports.ElementRevisionResource = ElementRevisionResource;
+  TypeRevisionResource = require('../../revision-resource/type');
 
   exports.register = function(server) {
     var killChain;
     server.get('/api/element', authentication, exports.getAll);
     server.get('/api/element/:key', authentication, exports.get);
     server.get('/api/element/:key/metadata', authentication, exports.getMetadata);
-    server.get('/api/element/:key/revisions/:revision', authentication, exports.get);
-    server.get('/api/element/:key/revisions/:revision/metadata', authentication, exports.getMetadata);
-    server.get('/api/element/:key/revisions', authentication, exports.getRevisions);
+    server.get('/api/element/:key/revision/:revision', authentication, exports.get);
+    server.get('/api/element/:key/revision/:revision/metadata', authentication, exports.getMetadata);
+    server.get('/api/element/:key/revision', authentication, exports.getRevisions);
     killChain = function(method, path, handler) {
       var route;
       route = server[method](path, function() {});
-      return server.routes[route] = [authentication, handler];
+      return server.routes[route] = [authentication, server.elementInterceptor, handler];
     };
     killChain('post', '/api/element', exports.post);
     return killChain('put', '/api/element/:key', exports.put);
@@ -75,7 +73,7 @@
       headers = {
         'X-Element-Revision': element.revision,
         'X-Element-Publish-Revision': -1,
-        'X-Element-Type-Key': element.type_key,
+        'X-Element-Type-Key': element.type_revision_map_key,
         'X-Element-Type-Revision': element.type_revision || 0,
         'Content-Length': data.data.length,
         'Content-Type': data.content_type
@@ -107,9 +105,10 @@
     promise = Q.resolve();
     if (instance.type_key != null) {
       promise = TypeRevisionResource.findRevision(instance.type_key, instance.type_revision, req.user.organization_id).then(function(type) {
-        instance.type_id = type.id;
+        instance.type_id = type.type_id;
+        instance.type_revision_map_id = type.revision_map_id;
         instance.type_revision = type.revision;
-        return instance.type_key = type.revision_map_key;
+        return instance.type_revision_map_key = type.revision_map_key;
       });
     }
     return promise.then(function() {
@@ -121,7 +120,7 @@
         if (((_ref1 = req.params) != null ? _ref1.key : void 0) == null) {
           res.header("Location", "/api/element/" + instance.revision_map_key);
         }
-        status = instance.$revision === 0 ? 201 : 204;
+        status = instance.revision === 0 ? 201 : 204;
         return res.send(status);
       });
     }).fail(function(error) {

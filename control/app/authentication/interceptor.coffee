@@ -7,6 +7,9 @@ AuthInterceptor = ( $rootScope, $q, Session ) ->
       if Session.token
         config.headers.Authorization = "Bearer #{ Session.token }"
 
+      if Session.library
+        config.headers[ 'X-Element-Library' ] = Session.library
+
       return config
 
     response: ( response ) ->

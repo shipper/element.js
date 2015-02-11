@@ -22,8 +22,29 @@ class ElementInstance
     @client.use( restify.gzipResponse() )
     @client.use( restify.bodyParser( mapParams: false ) )
 
+    @client.use( @elementInterceptor )
+
     @_bind( )
     @_registerRoutes( )
+
+  elementInterceptor: ( req, res, next ) ->
+
+    element = { }
+
+    checkKey = 'X-Element-'
+
+    for own key, value of req.headers
+      unless key.substr( 0, Math.min( key.length, checkKey.length ) ) is checkKey
+        continue
+
+      new_key = key.substr( checkKey.length )
+
+      element[ new_key ] = value
+
+    req.element = element
+    req.library = element[ 'Library' ]
+
+    next( )
 
   _bind: ->
     for key, val of @client

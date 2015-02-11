@@ -1,5 +1,6 @@
 (function() {
-  var ElementInstance, Q, mongoose, restify, routes;
+  var ElementInstance, Q, mongoose, restify, routes,
+    __hasProp = {}.hasOwnProperty;
 
   restify = require('restify');
 
@@ -25,9 +26,29 @@
       this.client.use(restify.bodyParser({
         mapParams: false
       }));
+      this.client.use(this.elementInterceptor);
       this._bind();
       this._registerRoutes();
     }
+
+    ElementInstance.prototype.elementInterceptor = function(req, res, next) {
+      var checkKey, element, key, new_key, value, _ref;
+      element = {};
+      checkKey = 'X-Element-';
+      _ref = req.headers;
+      for (key in _ref) {
+        if (!__hasProp.call(_ref, key)) continue;
+        value = _ref[key];
+        if (key.substr(0, Math.min(key.length, checkKey.length)) !== checkKey) {
+          continue;
+        }
+        new_key = key.substr(checkKey.length);
+        element[new_key] = value;
+      }
+      req.element = element;
+      req.library = element['Library'];
+      return next();
+    };
 
     ElementInstance.prototype._bind = function() {
       var key, val, _ref, _results;

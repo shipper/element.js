@@ -5,7 +5,7 @@ div#type( layout="column" layout-align="center center" )
                 label Type name
                 input( type="text" ng-model='values.name' )
             span( flex )
-            md-button.md-primary.md-raised#save( ng-click="save()" ) Save
+            md-button.md-primary.md-raised#save( ng-disabled="isNotSavable()" ng-click="save()" ) Save
 
         div( layout="row" layout-align="center center" flex )
             md-input-container( flex='40' )
@@ -13,11 +13,21 @@ div#type( layout="column" layout-align="center center" )
                 input( type="text" ng-model='values.description' )
             span( flex )
 
+        div( layout="row" layout-align="center center" flex )
+
+            md-subheader( flex='40' ) Property Name
+            div( flex layout="column" layout-align="center center" )
+                md-subheader Main property
+            md-subheader Required
+            span( flex='40' )
+
         div( layout="row" layout-align="start center" flex )
 
             md-input-container( flex='40' )
                 label &#43; Property Name
                 input( type="text" ng-model='property.name' )
+
+            span( flex )
 
             md-switch.md-warn(ng-model="property.required" aria-label="Required")
 
@@ -25,13 +35,24 @@ div#type( layout="column" layout-align="center center" )
                 el-type-select( flex el-selected='property.type' type="'base'" )
                 md-button.md-primary( flex ng-click='property.add()' ng-disabled="!property.valid()" ) Add
 
-        div( layout="row" layout-align="start center" flex ng-repeat="prop in values.properties | orderBy:'index'" )
+        md-radio-group( ng-model="values.main" layout="row" layout-align="start center" flex ng-repeat="prop in values.properties | orderBy:'index'" )
             div( layout="row" layout-align="start center" flex )
+
                 md-input-container( flex='40' )
                     label Property Name
                     input( type="text" ng-model='prop.name' )
 
-                md-switch.md-warn(ng-model="prop.required" aria-label="Required")
+                div( flex='1' layout='column' layout-align="center center" )
+                    span( ng-click="prop.up()" ng-hide="prop.isTop( )" ) ▲
+                    span( ng-click="prop.down()" ng-hide="prop.isBottom( )") ▼
+
+                div( flex layout="column" layout-align="center center" )
+                    md-radio-button( flex ng-value='prop.uuid' aria-label="Main" )
+
+                div(ng-if="values.main == prop.uuid" )
+                    md-switch.disabled(ng-disabled="true" aria-label="Required" ng-model='values.true')
+                div(ng-if="values.main != prop.uuid" )
+                    md-switch.md-warn(ng-model="prop.required" aria-label="Required")
 
                 div( layout="row" layout-align="center center" flex='40' )
                     el-type-select( el-selected='prop.type' type="'base'" flex='50')

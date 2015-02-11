@@ -1,0 +1,14 @@
+---
+
+- hosts: element_webservers
+
+  pre_tasks:
+    - shell: echo 'hello'
+
+  roles:
+    - nodejs
+    - mongodb
+
+  post_tasks:
+    - shell: echo 'goodbye'
+

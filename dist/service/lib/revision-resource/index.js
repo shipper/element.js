@@ -41,6 +41,9 @@
       if (this.schema.tree['id'] == null) {
         throw new Error("Schema does not include 'id'");
       }
+      if (this.schema.tree['library'] == null) {
+        throw new Error("Schema does not include 'library'");
+      }
       this.model = mongoose.model(this.name, this.schema);
       return this.revisonModel = Revision.define(this.name);
     };
@@ -49,23 +52,70 @@
       return new this.model();
     };
 
-    RevisionResources.prototype.find = function(key, org) {
-      return this.findRevision(key, -1, org);
+    RevisionResources.prototype.$resolveRevision = function(revision) {
+      var key, revision_num;
+      key = 'key';
+      if (typeof revision === 'string') {
+        revision_num = parseInt(revision, 10);
+        if (!isNaN(revision_num)) {
+          revision = revision_num;
+        }
+      }
+      if (typeof revision === 'number') {
+        key = 'revision';
+      }
+      return {
+        revision: revision,
+        key: key
+      };
     };
 
-    RevisionResources.prototype.findRevision = function(key, revision, org, key_type) {
-      var deferred, findById_callback, revision_num;
+    RevisionResources.prototype.$findRevision = function(revisions, revision) {
+      var revision_data, revision_key, revision_obj, revision_possible, _i, _len;
+      if (revision == null) {
+        revision = -1;
+      }
+      revision_data = this.$resolveRevision(revision);
+      revision = revision_data.revision;
+      revision_key = revision_data.key;
+      revision_obj = null;
+      for (_i = 0, _len = revisions.length; _i < _len; _i++) {
+        revision_possible = revisions[_i];
+        if (revision_key === 'revision' && revision === -1) {
+          if (revision_obj == null) {
+            revision_obj = revision_possible;
+            continue;
+          }
+          if (!(revision_possible.revision > revision_obj.revision)) {
+            continue;
+          }
+          revision_obj = revision_possible;
+          continue;
+        } else if (revision_possible[revision_key] === revision) {
+          revision_obj = revision_possible;
+          break;
+        }
+      }
+      return revision_obj;
+    };
+
+    RevisionResources.prototype.find = function(key, org, lib) {
+      if (lib == null) {
+        lib = void 0;
+      }
+      return this.findRevision(key, -1, org, null, lib);
+    };
+
+    RevisionResources.prototype.findRevision = function(key, revision, org, key_type, lib) {
+      var deferred, findById_callback;
       if (revision == null) {
         revision = -1;
       }
       if (key_type == null) {
         key_type = 'key';
       }
-      if (typeof revision === 'string') {
-        revision_num = parseInt(revision, 10);
-        if (!isNaN(revision_num)) {
-          revision = revision_num;
-        }
+      if (lib == null) {
+        lib = void 0;
       }
       deferred = Q.defer();
       findById_callback = function(err, document) {
@@ -74,28 +124,10 @@
         }
         return deferred.resolve(document);
       };
-      this.getRevisions(key, org, key_type).then((function(_this) {
+      this.getRevisions(key, org, key_type, lib).then((function(_this) {
         return function(revisions) {
-          var revision_key, revision_obj, revision_possible, _i, _len;
-          revision_obj = null;
-          revision_key = typeof revision === 'string' ? 'key' : 'revision';
-          for (_i = 0, _len = revisions.length; _i < _len; _i++) {
-            revision_possible = revisions[_i];
-            if (revision_key === 'revision' && revision === -1) {
-              if (revision_obj == null) {
-                revision_obj = revision_possible;
-                continue;
-              }
-              if (!(revision_possible.revision > revision_obj.revision)) {
-                continue;
-              }
-              revision_obj = revision_possible;
-              continue;
-            } else if (revision_possible[revision_key] === revision) {
-              revision_obj = revision_possible;
-              break;
-            }
-          }
+          var revision_obj;
+          revision_obj = _this.$findRevision(revisions, revision);
           if (revision_obj == null) {
             return deferred.reject('Not Found');
           }
@@ -105,10 +137,13 @@
       return deferred.promise;
     };
 
-    RevisionResources.prototype.getAll = function(org, reference) {
-      var deferred, find_callback;
+    RevisionResources.prototype.getAll = function(org, reference, lib) {
+      var deferred, find_callback, opts;
       if (reference == null) {
         reference = false;
+      }
+      if (lib == null) {
+        lib = void 0;
       }
       deferred = Q.defer();
       find_callback = (function(_this) {
@@ -151,16 +186,23 @@
           }).fail(deferred.reject);
         };
       })(this);
-      this.revisonModel.find({
+      opts = {
         organization_id: org
-      }, find_callback);
+      };
+      if (lib != null) {
+        opts.library = lib;
+      }
+      this.revisonModel.find(opts, find_callback);
       return deferred.promise;
     };
 
-    RevisionResources.prototype.getRevisions = function(key, org, key_type) {
+    RevisionResources.prototype.getRevisions = function(key, org, key_type, lib) {
       var deferred, find_callback, method, options;
       if (key_type == null) {
         key_type = 'key';
+      }
+      if (lib == null) {
+        lib = void 0;
       }
       if (key == null) {
         return Q.resolve(new RevisionArray(new this.revisonModel(), []));
@@ -176,6 +218,9 @@
               new_model.key = key;
             }
             new_model.organization_id = org;
+            if (lib != null) {
+              new_model.library = lib;
+            }
             return deferred.resolve(new RevisionArray(new_model, []));
           };
           if (err) {
@@ -189,6 +234,9 @@
           for (document_index = _i = 0, _len = documents.length; _i < _len; document_index = ++_i) {
             document = documents[document_index];
             if (document.delete_date != null) {
+              continue;
+            }
+            if ((lib != null) && document.library !== lib) {
               continue;
             }
             count += 1;
@@ -206,16 +254,25 @@
         key: key,
         organization_id: org
       };
+      if (key_type !== 'id' && (lib != null)) {
+        options.library = lib;
+      }
       this.revisonModel[method](options, find_callback);
       return deferred.promise;
     };
 
-    RevisionResources.prototype.update = function(instance) {
-      return this.save(instance);
+    RevisionResources.prototype.update = function(instance, lib) {
+      if (lib == null) {
+        lib = void 0;
+      }
+      return this.save(instance, lib);
     };
 
-    RevisionResources.prototype.save = function(instance) {
+    RevisionResources.prototype.save = function(instance, lib) {
       var deferred, key, type;
+      if (lib == null) {
+        lib = void 0;
+      }
       deferred = Q.defer();
       key = instance['revision_map_id'];
       type = 'id';
@@ -223,7 +280,12 @@
         key = instance['revision_map_key'];
         type = 'key';
       }
-      this.getRevisions(key, instance.organization_id, type).then((function(_this) {
+      if (lib == null) {
+        lib = instance.library;
+      } else {
+        instance.library = lib;
+      }
+      this.getRevisions(key, instance.organization_id, type, lib).then((function(_this) {
         return function(revisions) {
           var biggest_revision, map_key, model, revision, save_model_callback, save_revisions_callback, _i, _len;
           biggest_revision = -1;
@@ -244,16 +306,18 @@
           }
           map_key = instance['revision_map_key'] || revisions.revision_model.key;
           revisions.revision_model.key = map_key;
-          model['revision_map_id'] = revisions.revision_model;
+          model['revision_map_id'] = revisions.revision_model.id;
           model['revision_map_key'] = map_key;
           model['revision'] = revision;
           model['revision_key'] = uuid.v4();
+          model['library'] = revisions.revision_model.library;
           revisions.push(model);
           revisions.revision_model.revisions.push({
             revision: revision,
             create_date: new Date(),
             key: model['revision_key'],
-            external_id: model.id
+            external_id: model.id,
+            library: model['library']
           });
           revisions.revision_model.organization_id = model.organization_id;
           save_model_callback = function(err) {
@@ -274,10 +338,31 @@
       return deferred.promise;
     };
 
-    RevisionResources.prototype["delete"] = function(instance) {
-      var deferred;
-      deferred = Q.defer();
-      return deferred.promise;
+    RevisionResources.prototype["delete"] = function(key, revision, org, key_type, lib) {
+      if (revision == null) {
+        revision = -1;
+      }
+      if (key_type == null) {
+        key_type = 'key';
+      }
+      if (lib == null) {
+        lib = void 0;
+      }
+      return this.getRevisions(key, org, key_type, lib).then((function(_this) {
+        return function(revisions) {
+          var revision_obj;
+          if (revision === -1) {
+            revisions.revision_model.delete_date = new Date();
+          } else {
+            revision_obj = _this.$findRevision(revisions, revision);
+            if (revision_obj == null) {
+              throw new Error('Not Found');
+            }
+            revision_obj.delete_date = new Date();
+          }
+          return revisions.save();
+        };
+      })(this));
     };
 
     return RevisionResources;

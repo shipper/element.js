@@ -27,31 +27,29 @@
 #element .content [layout=row] {
   width: 100%;
 }
-#login {
-  padding-top: 2em;
-}
-#login .content {
-  width: 400px;
-  padding: 1em;
-}
-#login .content [layout=row] {
-  width: 100%;
-}
-#types {
+#elements {
   padding-top: 2em;
   padding-left: 10em;
   padding-right: 10em;
 }
-#types .content {
+#elements .content {
   padding: 1em;
   width: 100%;
 }
-#types .content [role=listitem] .item:not(:last-child) {
+#elements .content md-list {
+  width: 90%;
+}
+#elements .content md-list .header {
+  font-size: 0.9em;
+  font-weight: 400;
+  line-height: 1em;
+}
+#elements .content md-list [role=listitem] .item:not(:last-child) {
   border-bottom: 1px solid #dddddd;
 }
-#types .content [role=listitem] .item[ng-click],
-#types .content [role=listitem] .item[ng-href],
-#types .content [role=listitem] .item[href] {
+#elements .content md-list [role=listitem] .item[ng-click],
+#elements .content md-list [role=listitem] .item[ng-href],
+#elements .content md-list [role=listitem] .item[href] {
   cursor: pointer;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -65,19 +63,29 @@
   -webkit-transition-property: color, background-color;
   transition-property: color, background-color;
 }
-#types .content [role=listitem] .item[ng-click]:hover,
-#types .content [role=listitem] .item[ng-href]:hover,
-#types .content [role=listitem] .item[href]:hover,
-#types .content [role=listitem] .item[ng-click]:focus,
-#types .content [role=listitem] .item[ng-href]:focus,
-#types .content [role=listitem] .item[href]:focus,
-#types .content [role=listitem] .item[ng-click]:active,
-#types .content [role=listitem] .item[ng-href]:active,
-#types .content [role=listitem] .item[href]:active {
-  background-color: #2098d1;
-  color: white;
+#elements .content md-list [role=listitem] .item[ng-click]:hover,
+#elements .content md-list [role=listitem] .item[ng-href]:hover,
+#elements .content md-list [role=listitem] .item[href]:hover,
+#elements .content md-list [role=listitem] .item[ng-click]:focus,
+#elements .content md-list [role=listitem] .item[ng-href]:focus,
+#elements .content md-list [role=listitem] .item[href]:focus,
+#elements .content md-list [role=listitem] .item[ng-click]:active,
+#elements .content md-list [role=listitem] .item[ng-href]:active,
+#elements .content md-list [role=listitem] .item[href]:active {
+  background-color: #f3fafd;
+  color: #2098d1;
 }
-#types .content [layout=row] {
+#elements .content [layout=row] {
+  width: 100%;
+}
+#login {
+  padding-top: 2em;
+}
+#login .content {
+  width: 400px;
+  padding: 1em;
+}
+#login .content [layout=row] {
   width: 100%;
 }
 #type {
@@ -4933,16 +4941,29 @@
 #settings .content [layout=row] {
   width: 100%;
 }
-.text-left {
-  text-align: left;
+#home {
+  padding-top: 2em;
+  padding-left: 10em;
+  padding-right: 10em;
 }
-.text-right {
-  text-align: right;
+#home .content {
+  padding: 1em;
+  width: 100%;
 }
-.text-center {
-  text-align: center;
+#home .content md-list {
+  width: 90%;
 }
-.simpleFade {
+#home .content md-list .header {
+  font-size: 0.9em;
+  font-weight: 400;
+  line-height: 1em;
+}
+#home .content md-list [role=listitem] .item:not(:last-child) {
+  border-bottom: 1px solid #dddddd;
+}
+#home .content md-list [role=listitem] .item[ng-click],
+#home .content md-list [role=listitem] .item[ng-href],
+#home .content md-list [role=listitem] .item[href] {
   cursor: pointer;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -4956,9 +4977,41 @@
   -webkit-transition-property: color, background-color;
   transition-property: color, background-color;
 }
-.simpleFade:hover,
-.simpleFade:focus,
-.simpleFade:active {
-  background-color: #2098d1;
-  color: white;
+#home .content md-list [role=listitem] .item[ng-click]:hover,
+#home .content md-list [role=listitem] .item[ng-href]:hover,
+#home .content md-list [role=listitem] .item[href]:hover,
+#home .content md-list [role=listitem] .item[ng-click]:focus,
+#home .content md-list [role=listitem] .item[ng-href]:focus,
+#home .content md-list [role=listitem] .item[href]:focus,
+#home .content md-list [role=listitem] .item[ng-click]:active,
+#home .content md-list [role=listitem] .item[ng-href]:active,
+#home .content md-list [role=listitem] .item[href]:active {
+  background-color: #f3fafd;
+  color: #2098d1;
+}
+#home .content [layout=row] {
+  width: 100%;
+}
+[ng-click],
+[href] {
+  cursor: pointer;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+.text-center {
+  text-align: center;
+}
+#back-wrapper {
+  width: 48px;
+  height: 48px;
+}
+#back-wrapper #back {
+  width: 48px;
+  height: 48px;
+  background: url("../assets/back.png") center center no-repeat;
+  background-size: 24px 24px;
 }
