@@ -1,9 +1,28 @@
 (function() {
   var SettingsConfig, SettingsCtrl;
 
-  SettingsCtrl = function($scope) {};
+  SettingsCtrl = function($scope, $http) {
+    $scope.api = {
+      production: 'Not Set',
+      development: 'Not Set',
+      production_set: false,
+      development_set: false,
+      init: function() {
+        return $http.get('/api/agent/self/key').success(function(data) {
+          return _.assign($scope.api, data["default"]);
+        });
+      },
+      generate: function(type) {
+        return $http.get("/api/agent/self/key/" + type).success(function(key) {
+          $scope.api[type] = key;
+          return $scope.api[type + "_set"] = true;
+        });
+      }
+    };
+    return $scope.api.init();
+  };
 
-  SettingsCtrl.$inject = ['$scope'];
+  SettingsCtrl.$inject = ['$scope', '$http'];
 
   SettingsConfig = function($routeProvider) {
     return $routeProvider.when('/settings', {

@@ -6,30 +6,31 @@
   Agent = require('../../data/agent');
 
   validate = function(token, next) {
-    var getAgent, _base;
+    var decoded;
     if (!((token != null) && token.length)) {
       return next(new Error('No token'));
     }
-    getAgent = function(decoded) {
-      return Agent.findByUUID(decoded.key).then(function(agent) {
-        if (agent.api_key !== decoded.api_key || agent.disabled === true) {
-          return next(new Error('Token invalid'));
-        }
-        return next(null, agent);
-      }).fail(function(err) {
-        return next(err || new Error('Token invalid'));
-      });
-    };
-    return jwt.verify(token, (_base = process.env).ELEMENT_JWT_KEY != null ? _base.ELEMENT_JWT_KEY : _base.ELEMENT_JWT_KEY = 'ELEMENT_DEV', function(err) {
-      var decoded;
-      if (err) {
-        return next(err);
-      }
-      decoded = jwt.decode(token);
-      if (!((decoded != null) && decoded instanceof Object && (decoded['api_key'] != null) && decoded['key'])) {
+    decoded = jwt.decode(token);
+    if (!((decoded != null) && decoded instanceof Object && (decoded['type'] != null) && (decoded['set'] != null) && (decoded['influence'] != null) && decoded['key'])) {
+      return next(new Error('Token invalid'));
+    }
+    return Agent.findByUUID(decoded.key).then(function(agent) {
+      var _ref, _ref1, _ref2;
+      if (!((_ref = agent.api) != null ? (_ref1 = _ref.keys) != null ? _ref1[decoded['set']][decoded['type']] : void 0 : void 0) || !((_ref2 = agent.api.sign_key) != null ? _ref2.trim().length : void 0) || agent.api.keys[decoded.set][decoded.type] !== decoded['influence'] || agent.disabled === true) {
         return next(new Error('Token invalid'));
       }
-      return getAgent(decoded);
+      return jwt.verify(token, agent.api.sign_key, function(err) {
+        var type;
+        if (err) {
+          return next(err);
+        }
+        type = decoded.type;
+        if (type === 'authentication') {
+          type = 'development';
+        }
+        agent.environment = type;
+        return next(null, agent);
+      });
     });
   };
 

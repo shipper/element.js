@@ -82,7 +82,8 @@
           type: prop.type.type,
           schema: prop.type.schema,
           required: prop.required,
-          index: index
+          index: index,
+          base: prop.type
         };
         if ($scope.values.main === prop.uuid) {
           opts.main = true;

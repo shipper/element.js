@@ -16,7 +16,10 @@ module.exports = exports = new Schema(
     type: String
     required: true
   password: String
-  api_key: String
+  api: {
+    keys: { }
+    sign_key: String
+  }
   create_date:
     type: Date
     default: Date.now

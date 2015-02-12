@@ -21,7 +21,12 @@ ElTypeSelectDialogCtrl = ( $scope, $mdDialog, $http, type ) ->
   promise
   .success(( data ) ->
     $scope.types = data
-    $scope.typesValues = _.values( data )
+    keys = _.keys( data)
+
+    $scope.typesValues = _.map( keys, ( key ) ->
+      data[ key ].key = key
+      return data[ key ]
+    )
   )
 
 

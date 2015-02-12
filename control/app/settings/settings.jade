@@ -1,22 +1,46 @@
 div#settings( layout="column" layout-align="center center" )
-   md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="start center" )
-      div( layout="row" layout-align="start center" flex )
-         h3 General Account
-      div( layout="row" layout-align="start center" flex )
-         div( layout="column" layout-align="start center" flex )
+ md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="start center" )
+  md-tabs( md-selected='selected' )
+    md-tab( label='General' )
+      div( layout="column" layout-fill layout-align="space-around center" )
+        div( layout="row" layout-align="start center" flex )
+          div( layout="column" layout-align="start center" flex )
             div( layout="row" layout-align="start center")
-               md-input-container( flex='33' )
-                  label Old password
-                  input( type="password" ng-model='password.old' )
+              md-input-container( flex='33' )
+                label Old password
+                input( type="password" ng-model='password.old' )
             div( layout="row" layout-align="start center")
-               md-input-container( flex='33' )
-                  label New password
-                  input( type="password" ng-model='property.new' )
+              md-input-container( flex='33' )
+                label New password
+                input( type="password" ng-model='property.new' )
             div( layout="row" layout-align="start center")
-               md-input-container( flex='33' )
-                  label Confirm password
-                  input( type="password" ng-model='property.confirm' )
+              md-input-container( flex='33' )
+                label Confirm password
+                input( type="password" ng-model='property.confirm' )
             div( layout="row" layout-align="start center")
-               md-button.md-raised( flex='33' ) Change password
-
+              md-button.md-raised( flex='33' ) Change password
+    md-tab( label='API' )
+      div( layout="column" layout-fill layout-align="space-around center" )
+        p( layout="row" layout-align="start center" flex )
+          | A note on API keys, the last portion ( after the period ) will change each time this
+          | page is loaded, this doesn't mean old keys are invalid ( unless re-generated ).
+        p( layout="row" layout-align="start center" flex )
+          | An old API key can be made invalid by re-generating the key, this will change the
+          | first portion and all old keys will be made invalid.
+        div( layout="row" layout-align="start center" flex )
+          div( layout="column" layout-align="start center" flex )
+            div( layout="row" layout-align="start center")
+              md-input-container( flex='33' )
+                label Production key
+                textarea( ng-model='api.production' columns="3" ng-disabled='true' )
+              | &nbsp;
+              md-button.md-warn.md-raised(ng-show="!!api.production_set" ) Re-generate
+              md-button.md-primary.md-raised(ng-show="!api.production_set" ng-click="api.generate( 'production' )" ) Generate
+            div( layout="row" layout-align="start center")
+              md-input-container( flex='33' )
+                label Development key
+                textarea( ng-model='api.development' columns="3" ng-disabled='true' )
+              | &nbsp;
+              md-button.md-warn.md-raised(ng-show="!!api.development_set" ) Re-generate
+              md-button.md-primary.md-raised(ng-show="!api.development_set" ng-click="api.generate( 'development' )" ) Generate
 

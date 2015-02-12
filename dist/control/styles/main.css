@@ -4935,8 +4935,13 @@
   padding-right: 10em;
 }
 #settings .content {
-  padding: 1em;
   width: 100%;
+}
+#settings .content textarea {
+  min-height: 56px;
+}
+#settings .content [role=tabpanel] {
+  padding: 1em;
 }
 #settings .content [layout=row] {
   width: 100%;

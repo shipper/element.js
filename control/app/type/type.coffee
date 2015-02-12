@@ -79,6 +79,7 @@ TypeCtrl = ( $scope, $routeParams, $http, rfc4122 ) ->
         schema: prop.type.schema
         required: prop.required
         index: index
+        base: prop.type
       }
       if $scope.values.main is prop.uuid
         opts.main = true

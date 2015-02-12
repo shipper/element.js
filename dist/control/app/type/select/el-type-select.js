@@ -21,8 +21,13 @@
       promise = $http.get('/api/type/base');
     }
     return promise.success(function(data) {
+      var keys;
       $scope.types = data;
-      return $scope.typesValues = _.values(data);
+      keys = _.keys(data);
+      return $scope.typesValues = _.map(keys, function(key) {
+        data[key].key = key;
+        return data[key];
+      });
     });
   };
 
