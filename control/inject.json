@@ -8,8 +8,7 @@
     "./bower_components/angular-material/angular-material.js",
     "./bower_components/angular-route/angular-route.js",
     "./bower_components/angular-uuid-service/uuid-svc.js",
-    "./bower_components/dropzone/dist/dropzone.js",
-    "./dist/client/element-js.js"
+    "./bower_components/dropzone/dist/dropzone.js"
   ],
   "styles": [
     "./bower_components/angular-material/angular-material.css"
