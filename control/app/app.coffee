@@ -1,5 +1,11 @@
 AppCtrl = ( $scope, Session, $location ) ->
 
+  $scope.isLeftSideNavOpen = ->
+    return /home|types|elements|resources/.test( $location.path() )
+
+  $scope.goto = ( location ) ->
+    $location.path( location )
+
   $scope.Session = Session
 
   $scope.$on( 'back-path', ( event, path ) ->

@@ -85,7 +85,7 @@ gulp.task('client:inject', [ 'client:make' ], function() {
         .pipe( gulp.dest( path.join( 'dist', 'client', 'vendor' ) ) )
 });
 
-gulp.task('inject:clone:scripts', [ 'control:clean' ], function(){
+gulp.task('inject:clone:scripts', [ 'control:clean', 'client:compile' ], function(){
     return gulp.src( inject.scripts )
         .pipe( gulp.dest( path.join( 'dist', 'control', 'vendor' ) ))
 });

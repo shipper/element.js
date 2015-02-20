@@ -1,12 +1,15 @@
 {
   "scripts": [
+    "./node_modules/q/q.js",
     "./bower_components/lodash/lodash.js",
     "./bower_components/angular/angular.js",
     "./bower_components/angular-animate/angular-animate.js",
     "./bower_components/angular-aria/angular-aria.js",
     "./bower_components/angular-material/angular-material.js",
     "./bower_components/angular-route/angular-route.js",
-    "./bower_components/angular-uuid-service/uuid-svc.js"
+    "./bower_components/angular-uuid-service/uuid-svc.js",
+    "./bower_components/dropzone/dist/dropzone.js",
+    "./dist/client/element-js.js"
   ],
   "styles": [
     "./bower_components/angular-material/angular-material.css"

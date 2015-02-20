@@ -29,9 +29,11 @@
     "passport": "^0.2.1",
     "passport-http-bearer": "^1.0.1",
     "q": "^1.1.2",
+    "request": "^2.53.0",
     "restify": "^2.8.5",
     "schemajs": "^0.1.11",
     "stream-buffers": "^1.1.0",
+    "superagent": "^0.21.0",
     "uuid": "^2.0.1"
   },
   "devDependencies": {

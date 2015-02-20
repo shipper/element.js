@@ -2,6 +2,12 @@
   var AppConfig, AppCtrl;
 
   AppCtrl = function($scope, Session, $location) {
+    $scope.isLeftSideNavOpen = function() {
+      return /home|types|elements|resources/.test($location.path());
+    };
+    $scope.goto = function(location) {
+      return $location.path(location);
+    };
     $scope.Session = Session;
     $scope.$on('back-path', function(event, path) {
       return $scope.back = path;

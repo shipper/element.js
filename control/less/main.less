@@ -1,5 +1,6 @@
 @import './images.less';
 
+@import './home.less';
 @import '../app/element/element.less';
 @import '../app/elements/elements.less';
 @import '../app/login/login.less';
@@ -39,9 +40,7 @@
   .prefixed(transition-duration, @fastDuration);
   .prefixed(transition-property, ~"color, background-color");
 
-  &:hover,
-  &:focus,
-  &:active {
+  &:hover {
     background-color: @backgroundColor;
     color: @fontColor;
   }

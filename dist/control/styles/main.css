@@ -12,6 +12,24 @@
   background-position: center center;
   background-size: 24px 24px;
 }
+.md-sidenav-left .md-tile-content {
+  cursor: pointer;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  -webkit-transition-duration: 0.1s;
+  transition-duration: 0.1s;
+  -webkit-transition-property: color, background-color;
+  transition-property: color, background-color;
+}
+.md-sidenav-left .md-tile-content:hover {
+  background-color: #2098d1;
+  color: 'white';
+}
 #element {
   padding-top: 2em;
   padding-left: 10em;
@@ -65,13 +83,7 @@
 }
 #elements .content md-list [role=listitem] .item[ng-click]:hover,
 #elements .content md-list [role=listitem] .item[ng-href]:hover,
-#elements .content md-list [role=listitem] .item[href]:hover,
-#elements .content md-list [role=listitem] .item[ng-click]:focus,
-#elements .content md-list [role=listitem] .item[ng-href]:focus,
-#elements .content md-list [role=listitem] .item[href]:focus,
-#elements .content md-list [role=listitem] .item[ng-click]:active,
-#elements .content md-list [role=listitem] .item[ng-href]:active,
-#elements .content md-list [role=listitem] .item[href]:active {
+#elements .content md-list [role=listitem] .item[href]:hover {
   background-color: #f3fafd;
   color: #2098d1;
 }
@@ -4984,13 +4996,7 @@
 }
 #home .content md-list [role=listitem] .item[ng-click]:hover,
 #home .content md-list [role=listitem] .item[ng-href]:hover,
-#home .content md-list [role=listitem] .item[href]:hover,
-#home .content md-list [role=listitem] .item[ng-click]:focus,
-#home .content md-list [role=listitem] .item[ng-href]:focus,
-#home .content md-list [role=listitem] .item[href]:focus,
-#home .content md-list [role=listitem] .item[ng-click]:active,
-#home .content md-list [role=listitem] .item[ng-href]:active,
-#home .content md-list [role=listitem] .item[href]:active {
+#home .content md-list [role=listitem] .item[href]:hover {
   background-color: #f3fafd;
   color: #2098d1;
 }

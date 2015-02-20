@@ -26,6 +26,12 @@
     name: String,
     description: String,
     definition: {},
+    resource: {
+      type: Boolean,
+      "default": function() {
+        return false;
+      }
+    },
     organization_id: {
       type: ObjectId,
       required: true

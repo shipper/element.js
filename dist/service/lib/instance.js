@@ -32,7 +32,7 @@
     }
 
     ElementInstance.prototype.elementInterceptor = function(req, res, next) {
-      var checkKey, element, key, new_key, value, _ref;
+      var checkKey, element, key, new_key, value, _ref, _ref1;
       element = {};
       checkKey = 'X-Element-';
       _ref = req.headers;
@@ -47,6 +47,9 @@
       }
       req.element = element;
       req.library = element['Library'];
+      if (req.library == null) {
+        req.library = (_ref1 = req.params) != null ? _ref1.library : void 0;
+      }
       return next();
     };
 

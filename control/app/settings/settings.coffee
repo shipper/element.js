@@ -19,6 +19,13 @@ SettingsCtrl = ( $scope, $http ) ->
         $scope.api[ "#{ type }_set" ] = true
       )
 
+    reGenerate: ( type ) ->
+      $http.get( "/api/agent/self/key/#{ type }/new" )
+      .success( ( key ) ->
+        $scope.api[ type ] = key
+        $scope.api[ "#{ type }_set" ] = true
+      )
+
 
   }
 

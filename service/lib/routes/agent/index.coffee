@@ -14,6 +14,9 @@ exports.register = ( server ) ->
   server.del( '/api/agent/self/key/set/:set/type/:type', authentication, exports.kill )
   server.del( '/api/agent/self/key/set/:set', authentication, exports.kill )
   server.del( '/api/agent/self/key/:type', authentication, exports.kill )
+  server.get( '/api/agent/self/key/set/:set/type/:type/new', authentication, exports.reGenerate )
+  server.get( '/api/agent/self/key/set/:set/new', authentication, exports.reGenerate )
+  server.get( '/api/agent/self/key/:type/new', authentication, exports.reGenerate )
 
   server.post( '/api/agent/login', exports.login )
 
@@ -137,6 +140,20 @@ exports.generate = ( req, res ) ->
   .fail( ( err ) ->
     res.send( 500, err )
   )
+
+exports.reGenerate = ( req, res ) ->
+
+  authentication.Token.kill( req.user, req.params.type, req.params.set )
+  .then( ->
+    return authentication.Token.generate( req.user, req.params.type, req.params.set )
+  )
+  .then( ( key ) ->
+    res.send( 200, key )
+  )
+  .fail( ( err ) ->
+    res.send( 500, err )
+  )
+
 
 exports.kill = ( req, res ) ->
 

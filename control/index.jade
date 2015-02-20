@@ -10,7 +10,7 @@ html( ng-app="ngElement" ng-controller='AppCtrl' )
       link( rel='icon' type='image/icon' href='/assets/favicon.ico?v=1' )
 
    body( layout="column" )
-      md-toolbar( layout="row" md-scroll-shrink)
+      md-toolbar.md-whiteframe-z2( layout="row" md-scroll-shrink)
          .md-toolbar-tools
             #back-wrapper( ng-click="goBack()" )
               #back( ng-show="!!back" ) &nbsp;
@@ -22,5 +22,22 @@ html( ng-app="ngElement" ng-controller='AppCtrl' )
             | &nbsp;
             md-button.md-raised( ng-href="#/settings" ) Settings
 
-      md-content.md-padding
-         ng-view
+      section( layout="row" flex )
+        md-sidenav.md-sidenav-left.md-whiteframe-z2( md-component-id="left" md-is-locked-open="isLeftSideNavOpen()" )
+          md-content.md-primary
+            md-list
+              md-item
+                md-item-content
+                  .md-tile-content(ng-click="goto( 'home' )") Types
+              md-divider
+              md-item
+                md-item-content
+                  .md-tile-content(ng-click="goto( 'resources' )") Resources
+              md-divider
+              md-item
+                md-item-content
+                  .md-tile-content(ng-click="goto( 'logout' )") Logout
+
+
+        md-content.md-padding( flex )
+           ng-view

@@ -20,6 +20,9 @@
     server.del('/api/agent/self/key/set/:set/type/:type', authentication, exports.kill);
     server.del('/api/agent/self/key/set/:set', authentication, exports.kill);
     server.del('/api/agent/self/key/:type', authentication, exports.kill);
+    server.get('/api/agent/self/key/set/:set/type/:type/new', authentication, exports.reGenerate);
+    server.get('/api/agent/self/key/set/:set/new', authentication, exports.reGenerate);
+    server.get('/api/agent/self/key/:type/new', authentication, exports.reGenerate);
     return server.post('/api/agent/login', exports.login);
   };
 
@@ -72,7 +75,7 @@
     if (set == null) {
       return Q.resolve(obj);
     }
-    keys = [Token.AUTHENTICATION, Token.PRODUCTION, Token.DEVELOPMENT];
+    keys = [Token.PRODUCTION, Token.DEVELOPMENT];
     set_keys = _.keys(set);
     keys = _.filter(keys, function(key) {
       return set_keys.indexOf(key) !== -1;
@@ -107,6 +110,16 @@
 
   exports.generate = function(req, res) {
     return authentication.Token.generate(req.user, req.params.type, req.params.set).then(function(key) {
+      return res.send(200, key);
+    }).fail(function(err) {
+      return res.send(500, err);
+    });
+  };
+
+  exports.reGenerate = function(req, res) {
+    return authentication.Token.kill(req.user, req.params.type, req.params.set).then(function() {
+      return authentication.Token.generate(req.user, req.params.type, req.params.set);
+    }).then(function(key) {
       return res.send(200, key);
     }).fail(function(err) {
       return res.send(500, err);

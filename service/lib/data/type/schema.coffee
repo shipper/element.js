@@ -13,9 +13,14 @@ Base     = require( './base.json' )
 } = restify
 
 module.exports = exports = new Schema(
+
   name: String
   description: String
   definition: { }
+  resource:
+    type: Boolean
+    default: ->
+      return false
 
   organization_id:
     type: ObjectId

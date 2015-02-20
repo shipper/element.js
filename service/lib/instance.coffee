@@ -44,6 +44,9 @@ class ElementInstance
     req.element = element
     req.library = element[ 'Library' ]
 
+    unless req.library?
+      req.library = req.params?.library
+
     next( )
 
   _bind: ->

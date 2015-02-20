@@ -63,7 +63,7 @@
       if (((_ref = req.params) != null ? _ref.key : void 0) == null) {
         res.header("Location", "/api/type/" + instance.revision_map_key);
       }
-      status = instance.$revision === 0 ? 201 : 204;
+      status = instance.revision === 0 ? 201 : 204;
       return res.send(status);
     }).fail(function(error) {
       return res.send(500, error);
@@ -109,7 +109,9 @@
   };
 
   exports.find = function(req, res) {
-    return TypeRevisionResource.getAll(req.user.organization_id, false).then(function(documents) {
+    return TypeRevisionResource.getAll(req.user.organization_id, false, req.library, {
+      resource: false
+    }).then(function(documents) {
       return res.send(200, documents);
     }).fail(function(error) {
       return res.send(500, error);

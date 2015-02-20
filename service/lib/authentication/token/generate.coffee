@@ -1,7 +1,8 @@
-uuid = require( 'node-uuid' )
-Q    = require( 'q' )
-jwt  = require( 'jsonwebtoken' )
-_    = require( 'lodash' )
+uuid  = require( 'node-uuid' )
+Q     = require( 'q' )
+jwt   = require( 'jsonwebtoken' )
+_     = require( 'lodash' )
+Agent = require( '../../data/agent' )
 
 module.exports = exports = ( agent, type = exports.AUTHENTICATION, set = 'default' ) ->
 
@@ -28,16 +29,30 @@ module.exports = exports = ( agent, type = exports.AUTHENTICATION, set = 'defaul
       )
     )
 
+
+  update = {
+    $set: { }
+  }
+
   unless agent.api.keys[ set ]?[ type ]?.key?
     agent.api.keys[ set ] ?= { }
     agent.api.keys[ set ][ type ] = uuid.v4( )
+    update.$set[ "api.keys.#{ set }.#{ type }" ] = agent.api.keys[ set ][ type ]
 
-  agent.api.sign_key ?= uuid.v4( )
+  unless agent.api.sign_key?
+    agent.api.sign_key = uuid.v4()
+    update.$set[ 'api.sign_key' ] = agent.api.sign_key
 
-  return agent.savePromise( )
-  .then( ->
-    return module.exports( agent, type, set )
+  deferred = Q.defer( )
+
+  agent.update( update, ( err ) ->
+    if err
+      return next( err )
+
+    deferred.resolve( module.exports( agent, type, set ) )
   )
+
+  return deferred.promise
 
 exports.AUTHENTICATION = 'authentication'
 exports.DEVELOPMENT = "development"

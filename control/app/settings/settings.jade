@@ -34,13 +34,13 @@ div#settings( layout="column" layout-align="center center" )
                 label Production key
                 textarea( ng-model='api.production' columns="3" ng-disabled='true' )
               | &nbsp;
-              md-button.md-warn.md-raised(ng-show="!!api.production_set" ) Re-generate
+              md-button.md-warn.md-raised(ng-show="!!api.production_set" ng-click="api.reGenerate( 'production' )" ) Re-generate
               md-button.md-primary.md-raised(ng-show="!api.production_set" ng-click="api.generate( 'production' )" ) Generate
             div( layout="row" layout-align="start center")
               md-input-container( flex='33' )
                 label Development key
                 textarea( ng-model='api.development' columns="3" ng-disabled='true' )
               | &nbsp;
-              md-button.md-warn.md-raised(ng-show="!!api.development_set" ) Re-generate
+              md-button.md-warn.md-raised(ng-show="!!api.development_set" ng-click="api.reGenerate( 'development' )" ) Re-generate
               md-button.md-primary.md-raised(ng-show="!api.development_set" ng-click="api.generate( 'development' )" ) Generate
 

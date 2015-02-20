@@ -101,7 +101,7 @@ class RevisionResources
 
     return deferred.promise
 
-  getAll: ( org, reference = false, lib = undefined ) ->
+  getAll: ( org, reference = false, lib = undefined, where = undefined ) ->
 
     deferred = Q.defer( )
 
@@ -134,8 +134,13 @@ class RevisionResources
 
       promises = _.map( latest, ( revision ) =>
         return @findRevision( revision.document.id, revision.revision.revision, org, 'id' )
-        .then( ( doc ) ->
+        .then( ( doc ) =>
+
+          unless @matches( doc, where )
+            return
+
           revisions.push( doc )
+
         )
       )
 
@@ -160,6 +165,30 @@ class RevisionResources
     )
 
     return deferred.promise
+
+  matches: ( instance, where = undefined ) ->
+    unless _.isPlainObject( where )
+      return true
+    unless instance?
+      return false
+
+    for own key, val of where
+
+      if typeof val is 'boolean'
+        if val is true and not instance[ key ]
+          return false
+        if val is false and instance[ key ]
+          return false
+        continue
+
+      if val? and instance[ key ] isnt val
+        return false
+
+      if not val? and instance[ key ]?
+        return false
+
+    return true
+
 
   getRevisions: ( key, org, key_type = 'key', lib = undefined ) ->
 

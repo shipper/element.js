@@ -1,6 +1,9 @@
 {
   "scripts": [
-    "./bower_components/q/q.js",
-    "./bower_components/lodash/lodash.js"
+    "./node_modules/q/q.js",
+    "./bower_components/lodash/lodash.js",
+    "./node_modules/superagent/superagent.js",
+    "./node_modules/superagent/components/component-emitter/index.js",
+    "./node_modules/superagent/components/component-reduce/index.js"
   ]
 }

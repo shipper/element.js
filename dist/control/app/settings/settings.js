@@ -17,6 +17,12 @@
           $scope.api[type] = key;
           return $scope.api[type + "_set"] = true;
         });
+      },
+      reGenerate: function(type) {
+        return $http.get("/api/agent/self/key/" + type + "/new").success(function(key) {
+          $scope.api[type] = key;
+          return $scope.api[type + "_set"] = true;
+        });
       }
     };
     return $scope.api.init();

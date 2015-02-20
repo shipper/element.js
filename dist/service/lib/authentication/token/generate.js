@@ -1,5 +1,5 @@
 (function() {
-  var Q, exports, jwt, uuid, _;
+  var Agent, Q, exports, jwt, uuid, _;
 
   uuid = require('node-uuid');
 
@@ -9,8 +9,10 @@
 
   _ = require('lodash');
 
+  Agent = require('../../data/agent');
+
   module.exports = exports = function(agent, type, set) {
-    var obj, _base, _base1, _base2, _ref, _ref1, _ref2;
+    var deferred, obj, update, _base, _base1, _ref, _ref1, _ref2;
     if (type == null) {
       type = exports.AUTHENTICATION;
     }
@@ -38,18 +40,28 @@
       obj.influence = agent.api.keys[set][type];
       return Q.resolve(jwt.sign(obj, agent.api.sign_key));
     }
+    update = {
+      $set: {}
+    };
     if (((_ref1 = agent.api.keys[set]) != null ? (_ref2 = _ref1[type]) != null ? _ref2.key : void 0 : void 0) == null) {
       if ((_base1 = agent.api.keys)[set] == null) {
         _base1[set] = {};
       }
       agent.api.keys[set][type] = uuid.v4();
+      update.$set["api.keys." + set + "." + type] = agent.api.keys[set][type];
     }
-    if ((_base2 = agent.api).sign_key == null) {
-      _base2.sign_key = uuid.v4();
+    if (agent.api.sign_key == null) {
+      agent.api.sign_key = uuid.v4();
+      update.$set['api.sign_key'] = agent.api.sign_key;
     }
-    return agent.savePromise().then(function() {
-      return module.exports(agent, type, set);
+    deferred = Q.defer();
+    agent.update(update, function(err) {
+      if (err) {
+        return next(err);
+      }
+      return deferred.resolve(module.exports(agent, type, set));
     });
+    return deferred.promise;
   };
 
   exports.AUTHENTICATION = 'authentication';

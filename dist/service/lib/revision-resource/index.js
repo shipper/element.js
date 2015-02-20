@@ -1,5 +1,6 @@
 (function() {
-  var ExternalRevision, Q, Revision, RevisionArray, RevisionResources, mongoose, uuid, _;
+  var ExternalRevision, Q, Revision, RevisionArray, RevisionResources, mongoose, uuid, _,
+    __hasProp = {}.hasOwnProperty;
 
   Q = require('q');
 
@@ -137,13 +138,16 @@
       return deferred.promise;
     };
 
-    RevisionResources.prototype.getAll = function(org, reference, lib) {
+    RevisionResources.prototype.getAll = function(org, reference, lib, where) {
       var deferred, find_callback, opts;
       if (reference == null) {
         reference = false;
       }
       if (lib == null) {
         lib = void 0;
+      }
+      if (where == null) {
+        where = void 0;
       }
       deferred = Q.defer();
       find_callback = (function(_this) {
@@ -178,6 +182,9 @@
           revisions = [];
           promises = _.map(latest, function(revision) {
             return _this.findRevision(revision.document.id, revision.revision.revision, org, 'id').then(function(doc) {
+              if (!_this.matches(doc, where)) {
+                return;
+              }
               return revisions.push(doc);
             });
           });
@@ -194,6 +201,39 @@
       }
       this.revisonModel.find(opts, find_callback);
       return deferred.promise;
+    };
+
+    RevisionResources.prototype.matches = function(instance, where) {
+      var key, val;
+      if (where == null) {
+        where = void 0;
+      }
+      if (!_.isPlainObject(where)) {
+        return true;
+      }
+      if (instance == null) {
+        return false;
+      }
+      for (key in where) {
+        if (!__hasProp.call(where, key)) continue;
+        val = where[key];
+        if (typeof val === 'boolean') {
+          if (val === true && !instance[key]) {
+            return false;
+          }
+          if (val === false && instance[key]) {
+            return false;
+          }
+          continue;
+        }
+        if ((val != null) && instance[key] !== val) {
+          return false;
+        }
+        if ((val == null) && (instance[key] != null)) {
+          return false;
+        }
+      }
+      return true;
     };
 
     RevisionResources.prototype.getRevisions = function(key, org, key_type, lib) {

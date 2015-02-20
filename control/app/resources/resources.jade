@@ -1,0 +1,25 @@
+//
+   Created by fabian on 4/02/15.
+
+div#home( layout="column" layout-align="center center" )
+    md-toolbar( layout="row" )
+      h2.md-toolbar-tools Resources
+      .md-toolbar-tools( layout="row" layout-align="end center")
+        md-button.md-raised.md-primary( ng-click="new()" ) New Resource
+    md-whiteframe.md-whiteframe-z1.content( layout="column" layout-align="start center" )
+        md-list( flex )
+            md-item
+                md-item-content
+                    .md-tile-content( layout="row" )
+                        .header( flex='20' layout layout-align="start center" ) Name
+                        .header( flex='40' ) Description
+                        .header( flex='10' ) Type
+                        .header( flex='10' ) Created
+                        .header( flex='10' ) Updated
+                        .header( flex='10' ) Status
+            md-item( ng-repeat="resource in resources" )
+                md-item-content.item( ng-click="goto( resource )" )
+                    .md-tile-content( layout="row" )
+                        h3( flex='20' layout layout-align="start center" ) {{ resource.name }}
+                        p( flex ) {{ resource.description }}
+                        p( flex ) {{ resource.type }}

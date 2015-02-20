@@ -1,5 +1,5 @@
 (function() {
-  var ElementRevisionResource, Q, RevisionResource, Schema, TypeRevisionResource, WritableStreamBuffer, authentication, type;
+  var ElementRevisionResource, Q, Request, RevisionResource, Schema, TypeRevisionResource, WritableStreamBuffer, authentication, type;
 
   authentication = require('../../authentication');
 
@@ -17,19 +17,33 @@
 
   TypeRevisionResource = require('../../revision-resource/type');
 
+  Request = require('request');
+
   exports.register = function(server) {
     var killChain;
     server.get('/api/element', authentication, exports.getAll);
+    server.get('/api/library/:library/element', authentication, exports.getAll);
     server.get('/api/element/:key', authentication, exports.get);
     server.get('/api/element/:key/metadata', authentication, exports.getMetadata);
     server.get('/api/element/:key/revision/:revision', authentication, exports.get);
     server.get('/api/element/:key/revision/:revision/metadata', authentication, exports.getMetadata);
     server.get('/api/element/:key/revision', authentication, exports.getRevisions);
+    server.get('/api/library/:library/element/:key', authentication, exports.get);
+    server.get('/api/library/:library/element/:key/metadata', authentication, exports.getMetadata);
+    server.get('/api/library/:library/element/:key/revision/:revision', authentication, exports.get);
+    server.get('/api/library/:library/element/:key/revision/:revision/metadata', authentication, exports.getMetadata);
+    server.get('/api/library/:library/element/:key/revision', authentication, exports.getRevisions);
+    server.post('/api/library/:library/element/url/:url', authentication, exports.postURL);
+    server.put('/api/library/:library/element/:key/url/:url', authentication, exports.putURL);
+    server.post('/api/library/:library/element/url/:url', authentication, exports.postURL);
+    server.put('/api/library/:library/element/:key/url/:url', authentication, exports.putURL);
     killChain = function(method, path, handler) {
       var route;
       route = server[method](path, function() {});
       return server.routes[route] = [authentication, server.elementInterceptor, handler];
     };
+    killChain('post', '/api/library/:library/element', exports.post);
+    killChain('put', '/api/library/:library/element/:key', exports.put);
     killChain('post', '/api/element', exports.post);
     return killChain('put', '/api/element/:key', exports.put);
   };
@@ -90,6 +104,10 @@
   };
 
   exports.put = function(req, res) {
+    return exports.putData(exports.requestToData(req), req, res);
+  };
+
+  exports.putData = function(dataPromise, req, res) {
     var instance, promise, revision_num, _ref;
     instance = ElementRevisionResource.create();
     instance.organization_id = req.user.organization_id;
@@ -112,7 +130,7 @@
       });
     }
     return promise.then(function() {
-      return exports.requestToData(req).then(function(data) {
+      return dataPromise.then(function(data) {
         instance.data = data;
         return ElementRevisionResource.save(instance);
       }).then(function(instance) {
@@ -124,6 +142,7 @@
         return res.send(status);
       });
     }).fail(function(error) {
+      console.log(error, error.stack);
       return res.send(500, error);
     });
   };
@@ -145,7 +164,27 @@
         content_type: req.getContentType()
       });
     });
+    req.on('error', function(error) {
+      return deferred.reject(error);
+    });
     return deferred.promise;
+  };
+
+  exports.postURL = function(req, res) {
+    return exports.putURL(req, res);
+  };
+
+  exports.putURL = function(req, res) {
+    var data_request, promise;
+    data_request = Request(req.params.url);
+    if (data_request.getContentType == null) {
+      data_request.getContentType = function() {
+        console.log(data_request);
+        return data_request.response.headers['content-type'];
+      };
+    }
+    promise = exports.requestToData(data_request);
+    return exports.putData(promise, req, res);
   };
 
 }).call(this);

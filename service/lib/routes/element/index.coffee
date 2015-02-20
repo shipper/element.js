@@ -6,18 +6,30 @@ Q                         = require( 'q' )
 type                      = require( '../type' )
 ElementRevisionResource   = require( '../../revision-resource/element')
 TypeRevisionResource      = require( '../../revision-resource/type')
+Request                   = require( 'request' )
 
 exports.register = ( server ) ->
-  server.get(  '/api/element',                                    authentication, exports.getAll        )
+  server.get(  '/api/element',                                                   authentication, exports.getAll        )
+  server.get(  '/api/library/:library/element',                                  authentication, exports.getAll        )
 
   #server.put(  '/api/element/:key/publish',                       authentication, put.publish       )
   #server.put(  '/api/element/:key/revisions/:revision/publish',   authentication, put.publish       )
   #server.del(  '/api/element/:key',                               authentication, del.del           )
-  server.get(  '/api/element/:key',                               authentication, exports.get           )
-  server.get(  '/api/element/:key/metadata',                      authentication, exports.getMetadata   )
-  server.get(  '/api/element/:key/revision/:revision',           authentication, exports.get           )
-  server.get(  '/api/element/:key/revision/:revision/metadata',  authentication, exports.getMetadata   )
-  server.get(  '/api/element/:key/revision',                     authentication, exports.getRevisions  )
+  server.get(  '/api/element/:key',                                               authentication, exports.get           )
+  server.get(  '/api/element/:key/metadata',                                      authentication, exports.getMetadata   )
+  server.get(  '/api/element/:key/revision/:revision',                            authentication, exports.get           )
+  server.get(  '/api/element/:key/revision/:revision/metadata',                   authentication, exports.getMetadata   )
+  server.get(  '/api/element/:key/revision',                                      authentication, exports.getRevisions  )
+  server.get(  '/api/library/:library/element/:key',                              authentication, exports.get           )
+  server.get(  '/api/library/:library/element/:key/metadata',                     authentication, exports.getMetadata   )
+  server.get(  '/api/library/:library/element/:key/revision/:revision',           authentication, exports.get           )
+  server.get(  '/api/library/:library/element/:key/revision/:revision/metadata',  authentication, exports.getMetadata   )
+  server.get(  '/api/library/:library/element/:key/revision',                     authentication, exports.getRevisions  )
+
+  server.post( '/api/library/:library/element/url/:url',                          authentication, exports.postURL )
+  server.put(  '/api/library/:library/element/:key/url/:url',                     authentication, exports.putURL )
+  server.post( '/api/library/:library/element/url/:url',                          authentication, exports.postURL )
+  server.put(  '/api/library/:library/element/:key/url/:url',                     authentication, exports.putURL )
 
   killChain = ( method, path, handler ) ->
     route = server[ method ]( path, ->
@@ -30,8 +42,10 @@ exports.register = ( server ) ->
       handler
     ]
 
-  killChain( 'post', '/api/element',      exports.post  )
-  killChain( 'put',  '/api/element/:key', exports.put   )
+  killChain( 'post', '/api/library/:library/element',      exports.post  )
+  killChain( 'put',  '/api/library/:library/element/:key', exports.put   )
+  killChain( 'post', '/api/element',                      exports.post  )
+  killChain( 'put',  '/api/element/:key',                  exports.put   )
 
 exports.getAll = ( req, res ) ->
 
@@ -124,6 +138,9 @@ exports.get = ( req, res ) ->
   )
 
 exports.put = ( req, res ) ->
+  exports.putData( exports.requestToData( req ), req, res )
+
+exports.putData = ( dataPromise, req, res ) ->
 
   instance = ElementRevisionResource.create( )
 
@@ -157,7 +174,7 @@ exports.put = ( req, res ) ->
     )
 
   promise.then( ->
-    return exports.requestToData( req )
+    return dataPromise
     .then( ( data ) ->
       instance.data = data
 
@@ -176,6 +193,7 @@ exports.put = ( req, res ) ->
     )
   )
   .fail( ( error ) ->
+    console.log( error, error.stack )
     res.send( 500, error )
   )
 
@@ -197,7 +215,29 @@ exports.requestToData = ( req ) ->
     )
   )
 
+  req.on( 'error', ( error ) ->
+    deferred.reject( error )
+  )
+
   return deferred.promise
+
+
+exports.postURL = ( req, res ) ->
+  exports.putURL( req, res )
+
+exports.putURL = ( req, res ) ->
+
+  data_request = Request( req.params.url )
+
+  data_request.getContentType ?= ->
+    console.log( data_request )
+    return data_request.response.headers[ 'content-type' ]
+
+  promise = exports.requestToData( data_request )
+
+  exports.putData( promise, req, res )
+
+
 
 
 

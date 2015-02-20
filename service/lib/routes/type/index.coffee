@@ -57,7 +57,7 @@ exports.put = ( req, res ) ->
     unless req.params?.key?
       res.header( "Location", "/api/type/#{ instance.revision_map_key }" )
 
-    status = if instance.$revision is 0 then 201 else 204
+    status = if instance.revision is 0 then 201 else 204
     res.send( status )
   )
   .fail( ( error ) ->
@@ -142,15 +142,16 @@ exports.del = ( req, res ) ->
     return res.send( 500, error )
   )
 
-
-
-
 exports.find = ( req, res ) ->
 
   TypeRevisionResource
   .getAll(
     req.user.organization_id,
-    false
+    false,
+    req.library,
+    {
+      resource: false
+    }
   )
   .then( ( documents ) ->
     res.send( 200, documents )

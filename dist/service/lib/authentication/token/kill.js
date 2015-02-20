@@ -1,10 +1,12 @@
 (function() {
-  var Generate, exports;
+  var Generate, Q, exports;
 
   Generate = require('./generate');
 
+  Q = require('q');
+
   module.exports = exports = function(agent, type, set) {
-    var _ref, _ref1, _ref2;
+    var deferred, update, _ref, _ref1, _ref2;
     if (type == null) {
       type = Generate.AUTHENTICATION;
     }
@@ -15,7 +17,18 @@
       return Q.resolve(this);
     }
     agent.api.keys[set][type] = void 0;
-    return agent.savePromise();
+    update = {
+      $unset: {}
+    };
+    update.$unset["api.keys." + set + "." + type] = "";
+    deferred = Q.defer();
+    agent.update(update, function(err) {
+      if (err) {
+        return deferred.reject(err);
+      }
+      return deferred.resolve(agent);
+    });
+    return deferred.promise;
   };
 
 }).call(this);
